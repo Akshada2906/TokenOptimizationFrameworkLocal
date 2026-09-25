@@ -4,14 +4,14 @@ import shutil
 
 from src.config.settings import settings
 from src.helpers.pixel_renderer import estimate_image_tokens, fit_image, image_size, render_text_pages
-from src.services.analyzer import analyze
-from src.services.architecture import build_architecture_md
-from src.services.code_context import render_code_images
-from src.services.diagrams import render_diagrams
-from src.services.graph import Graph, graph_summary_text, load_graph
-from src.services.session_store import Session
-from src.services.tokens import grounding_comparison
-from src.services.workspace import WorkspaceError, clone_repo, iter_repo_files
+from backend.src.services.pixelprompt.analyzer import analyze
+from backend.src.services.pixelprompt.architecture import build_architecture_md
+from backend.src.services.pixelprompt.code_context import render_code_images
+from backend.src.services.pixelprompt.diagrams import render_diagrams
+from backend.src.services.pixelprompt.graph import Graph, graph_summary_text, load_graph
+from backend.src.services.pixelprompt.session_store import Session
+from backend.src.services.pixelprompt.tokens import grounding_comparison
+from backend.src.services.pixelprompt.workspace import WorkspaceError, clone_repo, iter_repo_files
 
 log = logging.getLogger(__name__)
 
@@ -57,6 +57,8 @@ def _analyze_and_render(session: Session) -> None:
         except (OSError, ValueError) as e:
             result.notes.append(f"Could not parse graph: {e}")
     session.graph = graph
+    session.graph_dir = result.graph_json.parent if result.graph_json and result.source != "fallback" else None
+    session.graph_generated = result.source == "graphify"
 
     arch_md = build_architecture_md(repo, graph, result.source)
     (ctx / "architecture.md").write_text(arch_md, encoding="utf-8")
@@ -117,6 +119,7 @@ def _analyze_and_render(session: Session) -> None:
         "images": len(images),
         "grounding_image_tokens_est": image_tokens,
         "raw_repo_tokens_est": raw_tokens,
+        "graph_dir": str(session.graph_dir) if session.graph_dir else None,
         "code_files": len(included),
         "code_files_omitted": len(omitted),
         "notes": result.notes,

@@ -67,6 +67,30 @@ const CODE_EXTS =
   ".py .js .jsx .ts .tsx .mjs .cjs .java .go .rs .rb .php .cs .c .h .cc .cpp .hpp .kt .swift .scala .sh .bash .sql " +
   ".html .css .scss .vue .svelte .md .mdx .json .yml .yaml .toml .ini .cfg .xml .gradle .proto .graphql";
 
+const SKIP_DIR = /(^|\/)(\.git|node_modules|venv|\.venv|__pycache__|dist|build|\.next|target|\.idea|graphify-out|code-review-graph)(\/|$)/;
+const NAMES = new Set(["Dockerfile", "Makefile", "requirements.txt", "go.mod", "Gemfile", ".env.example"]);
+const LOCKS = /(^|\/)(package-lock\.json|yarn\.lock|pnpm-lock\.yaml|poetry\.lock|Cargo\.lock)$|\.(min\.js|min\.css|map)$/;
+const EXTS = new Set(CODE_EXTS.split(" "));
+
+/** Only real code/config/doc files are sent (mirrors backend is_code_file). */
+export function wantFile(rel: string, size: number): boolean {
+  if (SKIP_DIR.test(rel) || LOCKS.test(rel) || size > 1_000_000) return false;
+  const base = rel.split("/").pop() as string;
+  const ext = base.includes(".") ? "." + base.split(".").pop()!.toLowerCase() : "";
+  return NAMES.has(base) || EXTS.has(ext);
+}
+
+export interface GraphInfo {
+  folder: string;
+  path: string | null;
+  generated: boolean;
+  source: string | null;
+  nodes: number;
+  edges: number;
+  has_html: boolean;
+  files: { path: string; size: number }[];
+}
+
 export const api = {
   createFromUrl: (repo_url: string) =>
     fetch(base, {
@@ -75,20 +99,19 @@ export const api = {
       body: JSON.stringify({ repo_url }),
     }).then((r) => json<{ session_id: string }>(r)),
 
+  createFromLocal: (path: string) =>
+    fetch(`${base}/local`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path }),
+    }).then((r) => json<{ session_id: string }>(r)),
+
   createFromFolder: (files: FileList) => {
     const form = new FormData();
-    // Only send real code/config/doc files (mirrors backend is_code_file); skips dependency and build folders.
-    const skipDir = /(^|\/)(\.git|node_modules|venv|\.venv|__pycache__|dist|build|\.next|target|\.idea)(\/|$)/;
-    const exts = new Set(CODE_EXTS.split(" "));
-    const names = new Set(["Dockerfile", "Makefile", "requirements.txt", "go.mod", "Gemfile", ".env.example"]);
-    const lock = /(^|\/)(package-lock\.json|yarn\.lock|pnpm-lock\.yaml|poetry\.lock|Cargo\.lock)$|\.(min\.js|min\.css|map)$/;
     let sent = 0;
     Array.from(files).forEach((f) => {
       const rel = (f as any).webkitRelativePath || f.name;
-      const base = rel.split("/").pop() as string;
-      const ext = base.includes(".") ? "." + base.split(".").pop()!.toLowerCase() : "";
-      if (skipDir.test(rel) || lock.test(rel) || f.size > 1_000_000) return;
-      if (names.has(base) || exts.has(ext)) {
+      if (wantFile(rel, f.size)) {
         form.append("files", f, rel);
         sent++;
       }
@@ -98,6 +121,22 @@ export const api = {
       json<{ session_id: string }>(r),
     );
   },
+
+  createFromFiles: (files: { file: File; rel: string }[]) => {
+    const form = new FormData();
+    files.forEach(({ file, rel }) => form.append("files", file, rel));
+    return fetch(`${base}/upload`, { method: "POST", body: form }).then((r) =>
+      json<{ session_id: string }>(r),
+    );
+  },
+
+  graph: (id: string) => fetch(`${base}/${id}/graph`).then((r) => json<GraphInfo>(r)),
+  graphHtmlUrl: (id: string) => `${base}/${id}/graph.html`,
+  graphFiles: (id: string) =>
+    fetch(`${base}/${id}/graph-files`).then((r) =>
+      json<{ folder: string; files: { path: string; size: number }[]; gitignore: string }>(r),
+    ),
+  graphFileUrl: (id: string, path: string) => `${base}/${id}/graph-file?path=${encodeURIComponent(path)}`,
 
   status: (id: string) => fetch(`${base}/${id}`).then((r) => json<SessionStatus>(r)),
   tree: (id: string) => fetch(`${base}/${id}/tree`).then((r) => json<TreeNode[]>(r)),

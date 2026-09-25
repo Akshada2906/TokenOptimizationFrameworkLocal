@@ -7,7 +7,7 @@ from src.config.settings import settings
 
 IGNORED_DIRS = {
     ".git", "node_modules", "venv", ".venv", "__pycache__", "dist", "build",
-    ".next", ".idea", ".vscode", "graphify-out", ".mypy_cache", ".pytest_cache", "target",
+    ".next", ".idea", ".vscode", "graphify-out", "code-review-graph", ".mypy_cache", ".pytest_cache", "target",
 }
 
 
@@ -32,6 +32,11 @@ def is_code_file(rel: str, size: int = 0) -> bool:
     return name in CODE_NAMES or PurePosixPath(name).suffix.lower() in CODE_EXTS
 
 
+GRAPH_DIR = "code-review-graph"  # where the graph lives inside the repo (renamed from Graphify's graphify-out)
+GRAPH_DIRS = {"graphify-out", GRAPH_DIR}
+GITIGNORE_BLOCK = f"# RepoGraph code review graph (generated)\n{GRAPH_DIR}/\n"
+
+
 class WorkspaceError(Exception):
     pass
 
@@ -48,6 +53,32 @@ def validate_repo_url(url: str) -> str:
             f"Host not allowed. Allowed: {', '.join(settings.allowed_git_hosts)}"
         )
     return url
+
+
+def ensure_gitignore(repo: Path) -> bool:
+    """Make sure code-review-graph/ is git-ignored in the repo. Returns True if the file was changed."""
+    gi = repo / ".gitignore"
+    try:
+        current = gi.read_text(encoding="utf-8") if gi.exists() else ""
+        if any(line.strip().rstrip("/").lstrip("/") == GRAPH_DIR for line in current.splitlines()):
+            return False
+        sep = "" if not current or current.endswith("\n") else "\n"
+        gi.write_text(current + sep + ("\n" if current else "") + GITIGNORE_BLOCK, encoding="utf-8")
+        return True
+    except OSError:
+        return False
+
+
+def validate_local_path(raw: str) -> Path:
+    p = Path(raw).expanduser()
+    if not p.is_absolute():
+        raise WorkspaceError("Enter an absolute folder path.")
+    p = p.resolve()
+    if not p.is_dir():
+        raise WorkspaceError(f"Folder not found: {p}")
+    if p == Path("/") or p == Path.home():
+        raise WorkspaceError("Choose a project folder, not the filesystem root or your home folder.")
+    return p
 
 
 def clone_repo(url: str, dest: Path) -> None:
@@ -78,7 +109,7 @@ def save_upload(files: list[tuple[str, bytes]], dest: Path) -> None:
         posix = PurePosixPath(rel.replace("\\", "/"))
         if posix.is_absolute() or ".." in posix.parts or not posix.parts:
             raise WorkspaceError(f"Unsafe path in upload: {rel}")
-        if any(part in IGNORED_DIRS - {"graphify-out"} for part in posix.parts):
+        if any(part in IGNORED_DIRS - GRAPH_DIRS for part in posix.parts):
             continue
         if not is_code_file(rel, len(data)):
             continue

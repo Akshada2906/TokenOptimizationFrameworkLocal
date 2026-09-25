@@ -12,17 +12,13 @@ interface Msg {
 
 const fmt = (v: number) => v.toLocaleString();
 
-function TokenBreakdown({ s, images, sessionId }: { s: ChatStats; images: UsedImage[]; sessionId: string }) {
-  const [all, setAll] = useState(false);
+function TokenBreakdown({ s, images }: { s: ChatStats; images: UsedImage[] }) {
   const diff = s.text_tokens - s.image_tokens;
   const pct = s.text_tokens ? Math.round((Math.abs(diff) / s.text_tokens) * 100) : 0;
   const graph = images.filter((i) => i.source === "grounding").length;
   const code = images.filter((i) => i.source === "code");
   const codeFiles = new Set(code.map((i) => i.file)).size;
   const fresh = images.filter((i) => i.source === "file").length;
-  // Thumbnails: graph pages and fresh file pages first, then code images (collapsed by default).
-  const ordered = [...images.filter((i) => i.source !== "code"), ...code];
-  const shown = all ? ordered : ordered.slice(0, 10);
   return (
     <div className="tokens">
       <div className="compare-line">
@@ -43,26 +39,6 @@ function TokenBreakdown({ s, images, sessionId }: { s: ChatStats; images: UsedIm
         {graph} graph/docs pages · {code.length} code images from {codeFiles} files
         {fresh > 0 && ` · ${fresh} fresh file pages`}
       </div>
-      <div className="used">
-        {shown.map((img) => (
-          <a
-            key={img.name}
-            href={api.contextImageUrl(sessionId, img.name)}
-            target="_blank"
-            rel="noreferrer"
-            className="thumb"
-            title={`${img.file ?? img.title} (${img.width}×${img.height})`}
-          >
-            <img src={api.contextImageUrl(sessionId, img.name)} alt={img.title} loading="lazy" />
-            <span>{img.source === "grounding" ? "graph context" : img.file ?? img.title}</span>
-          </a>
-        ))}
-      </div>
-      {ordered.length > 10 && (
-        <button className="secondary small" onClick={() => setAll(!all)}>
-          {all ? "Show fewer" : `Show all ${ordered.length} images`}
-        </button>
-      )}
     </div>
   );
 }
@@ -108,7 +84,7 @@ export default function Chat({ sessionId, openFile }: { sessionId: string; openF
         {msgs.map((m, i) => (
           <div key={i} className={`msg ${m.role} ${m.error ? "err" : ""}`}>
             {m.role === "assistant" ? <ReactMarkdown>{m.content}</ReactMarkdown> : m.content}
-            {m.stats && <TokenBreakdown s={m.stats} images={m.images ?? []} sessionId={sessionId} />}
+            {m.stats && <TokenBreakdown s={m.stats} images={m.images ?? []} />}
           </div>
         ))}
         {busy && <div className="msg assistant thinking">Thinking…</div>}

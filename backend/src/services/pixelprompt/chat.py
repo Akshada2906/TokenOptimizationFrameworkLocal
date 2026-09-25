@@ -8,11 +8,11 @@ from google.genai import types
 from src.config.settings import settings
 from src.helpers.pixel_renderer import estimate_image_tokens, image_size, render_text_pages
 from src.prompts import prompt
-from src.services.context_router import classify
-from src.services.graph import graph_slice
-from src.services.session_store import Session
-from src.services.tokens import count_text, modality_tokens
-from src.services.workspace import WorkspaceError, safe_repo_path
+from backend.src.services.pixelprompt.context_router import classify
+from backend.src.services.pixelprompt.graph import graph_slice
+from backend.src.services.pixelprompt.session_store import Session
+from backend.src.services.pixelprompt.tokens import count_text, modality_tokens
+from backend.src.services.pixelprompt.workspace import WorkspaceError, safe_repo_path
 
 log = logging.getLogger(__name__)
 _client: genai.Client | None = None
