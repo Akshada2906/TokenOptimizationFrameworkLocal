@@ -1,0 +1,242 @@
+{
+  "TokenOptimizationFramework/backend/src/__init__.py": {
+    "mtime": 1790330801.7471547,
+    "seen": 1790330804.0397136,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/config/__init__.py": {
+    "mtime": 1790330801.7780447,
+    "seen": 1790330804.039718,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/config/settings.py": {
+    "mtime": 1790330801.7760344,
+    "seen": 1790330804.0397198,
+    "ast_hash": "ce494bc2d934028d3e127fa44699d004",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/helpers/__init__.py": {
+    "mtime": 1790330801.7740173,
+    "seen": 1790330804.039721,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/helpers/pixel_renderer.py": {
+    "mtime": 1790330801.7740173,
+    "seen": 1790330804.039722,
+    "ast_hash": "237cd44a2c641efdb81f664bea688544",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/main.py": {
+    "mtime": 1790330801.7471547,
+    "seen": 1790330804.0397227,
+    "ast_hash": "d5bead6e0bbce6109ff11cc4ab9cc2dc",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/prompts/__init__.py": {
+    "mtime": 1790330801.772,
+    "seen": 1790330804.0397239,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/prompts/prompt.py": {
+    "mtime": 1790330801.772,
+    "seen": 1790330804.0397246,
+    "ast_hash": "39d4afc9647ab5f6473581e523bcb078",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/routers/__init__.py": {
+    "mtime": 1790330801.7652187,
+    "seen": 1790330804.0397253,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/routers/sessions.py": {
+    "mtime": 1790330801.7652187,
+    "seen": 1790330804.039726,
+    "ast_hash": "c4ddc97978b679be398dad8ab1728f83",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/schemas/__init__.py": {
+    "mtime": 1790330801.7652187,
+    "seen": 1790330804.0397267,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/schemas/api.py": {
+    "mtime": 1790330801.7652187,
+    "seen": 1790330804.039728,
+    "ast_hash": "3c7aa6f5bdd6ed36b5546847c1797bff",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/services/__init__.py": {
+    "mtime": 1790330801.7652187,
+    "seen": 1790330804.0397289,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/services/analyzer.py": {
+    "mtime": 1790330801.7471547,
+    "seen": 1790330804.0397296,
+    "ast_hash": "c7651fdc0a0705d67d478ca279202049",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/services/architecture.py": {
+    "mtime": 1790330801.7471547,
+    "seen": 1790330804.0397305,
+    "ast_hash": "1d8373bb61de82f710e757282a2e4824",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/services/chat.py": {
+    "mtime": 1790330801.7471547,
+    "seen": 1790330804.0397313,
+    "ast_hash": "cc65d27f41ef74a1d649aec7268fc5b8",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/services/code_context.py": {
+    "mtime": 1790330801.7559335,
+    "seen": 1790330804.0397322,
+    "ast_hash": "1e4bab0bdfc53167e77b5c2839a4dc99",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/services/context_router.py": {
+    "mtime": 1790330801.7559335,
+    "seen": 1790330804.0397327,
+    "ast_hash": "43ee7b69968541b595834e1b40312982",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/services/diagrams.py": {
+    "mtime": 1790330801.7559335,
+    "seen": 1790330804.0397334,
+    "ast_hash": "0b33c38b2e1236cc5ae505b18eacba68",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/services/graph.py": {
+    "mtime": 1790330801.7559335,
+    "seen": 1790330804.0397346,
+    "ast_hash": "1223aeaac36092773a309da5d432fdc4",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/services/pipeline.py": {
+    "mtime": 1790330801.7559335,
+    "seen": 1790330804.0397353,
+    "ast_hash": "7008260627a36611c01cbfce11bb6ba5",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/services/session_store.py": {
+    "mtime": 1790330801.7620091,
+    "seen": 1790330804.039736,
+    "ast_hash": "3a2cbfb420e52201b74540e0f3815938",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/services/tokens.py": {
+    "mtime": 1790330801.76371,
+    "seen": 1790330804.039737,
+    "ast_hash": "21f5dc4fc2fd93408a8514e08a6d2713",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/src/services/workspace.py": {
+    "mtime": 1790330801.7652187,
+    "seen": 1790330804.039738,
+    "ast_hash": "c2b1b3e2cd88409a680e55f4a48c5268",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/frontend/package.json": {
+    "mtime": 1790330801.7304318,
+    "seen": 1790330804.0397387,
+    "ast_hash": "3eefe19b5a54378b43cb14bff5b822b0",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/frontend/src/App.tsx": {
+    "mtime": 1790330801.7355614,
+    "seen": 1790330804.0397394,
+    "ast_hash": "6e0f6ea2a6da366917ffc54c38e4559c",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/frontend/src/api.ts": {
+    "mtime": 1790330801.7345634,
+    "seen": 1790330804.0397406,
+    "ast_hash": "e08c7c023d03317a6d4cf93805cf9d12",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/frontend/src/components/Chat.tsx": {
+    "mtime": 1790330801.7388,
+    "seen": 1790330804.0397413,
+    "ast_hash": "29fecbb4b85ad087de07516762e8356d",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/frontend/src/components/CodeViewer.tsx": {
+    "mtime": 1790330801.7398155,
+    "seen": 1790330804.0397422,
+    "ast_hash": "e708c85b97ca46ea5bec0d716ce99860",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/frontend/src/components/ContextDrawer.tsx": {
+    "mtime": 1790330801.7408156,
+    "seen": 1790330804.039743,
+    "ast_hash": "dd9d56223a5bbecee87d7a22fda504fe",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/frontend/src/components/FileTree.tsx": {
+    "mtime": 1790330801.7428284,
+    "seen": 1790330804.0397437,
+    "ast_hash": "c59f9034e915a377e6933d7456abcb7e",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/frontend/src/components/Landing.tsx": {
+    "mtime": 1790330801.74385,
+    "seen": 1790330804.0397446,
+    "ast_hash": "d3b1c684d5b9d4a5d07c1696c0b138e6",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/frontend/src/components/TokenSummary.tsx": {
+    "mtime": 1790330801.7452404,
+    "seen": 1790330804.0397453,
+    "ast_hash": "e580e8213000b98cf58fe407c6fcca52",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/frontend/src/components/Workspace.tsx": {
+    "mtime": 1790330801.7462764,
+    "seen": 1790330804.0397463,
+    "ast_hash": "9c0bb62e9e7fac5d78de308b1c11e07d",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/frontend/src/main.tsx": {
+    "mtime": 1790330801.7365608,
+    "seen": 1790330804.039747,
+    "ast_hash": "2faed4d2377850d086629ef49bdcc061",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/frontend/tsconfig.json": {
+    "mtime": 1790330801.7317777,
+    "seen": 1790330804.039748,
+    "ast_hash": "98ef03adeec139a2cd9bf86b6193ea45",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/frontend/vite.config.ts": {
+    "mtime": 1790330801.7335641,
+    "seen": 1790330804.0397487,
+    "ast_hash": "f97715a5542a557debc61ad072f904a4",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/README.md": {
+    "mtime": 1790330801.7279787,
+    "seen": 1790330804.0397494,
+    "ast_hash": "7e7107a9d8bef35783d0a472e275dca1",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/backend/requirements.txt": {
+    "mtime": 1790330801.7471547,
+    "seen": 1790330804.0397503,
+    "ast_hash": "2e64051890408f6184ad80f3f5049c31",
+    "semantic_hash": ""
+  },
+  "TokenOptimizationFramework/frontend/index.html": {
+    "mtime": 1790330801.7289815,
+    "seen": 1790330804.0397515,
+    "ast_hash": "34865a9d030580a64d4eeff4edf6cff1",
+    "semantic_hash": ""
+  }
+}

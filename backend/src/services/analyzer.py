@@ -71,8 +71,10 @@ def collect_docs(repo: Path) -> list[Path]:
 
 
 def run_graphify(repo: Path) -> bool:
-    exe = shutil.which("graphify") or str(Path(sys.executable).parent / "graphify")
-    if not Path(exe).exists() and not shutil.which("graphify"):
+    import sys
+    exe_name = "graphify.exe" if sys.platform == "win32" else "graphify"
+    exe = shutil.which(exe_name) or str(Path(sys.executable).parent / exe_name)
+    if not Path(exe).exists() and not shutil.which(exe_name):
         return False
     try:
         proc = subprocess.run(
