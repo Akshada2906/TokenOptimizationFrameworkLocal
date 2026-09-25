@@ -15,23 +15,28 @@ const fmt = (v: number) => v.toLocaleString();
 function TokenBreakdown({ s, images, sessionId }: { s: ChatStats; images: UsedImage[]; sessionId: string }) {
   const diff = s.text_tokens - s.image_tokens;
   const pct = s.text_tokens ? Math.round((Math.abs(diff) / s.text_tokens) * 100) : 0;
+  const asText = images.filter((i) => i.source === "text");
+  images = images.filter((i) => i.source !== "text");
   const graph = images.filter((i) => i.source === "grounding").length;
   const code = images.filter((i) => i.source === "code");
   const codeFiles = new Set(code.map((i) => i.file)).size;
   const fresh = images.filter((i) => i.source === "file").length;
   return (
     <div className="tokens">
-      <div className="compare-line">
+      {images.length > 0 && <div className="compare-line">
         <span><b>{fmt(s.image_tokens)}</b> image tokens</span>
         <span className="vs">vs</span>
         <span><b>{fmt(s.text_tokens)}</b> as text</span>
         <span className={diff >= 0 ? "good badge" : "bad badge"}>
           {diff >= 0 ? `${pct}% fewer tokens` : `${pct}% more tokens`}
         </span>
-      </div>
+      </div>}
       <div className="chips">
         <span className="chip">image tokens: <b>{fmt(s.image_tokens)}</b></span>
         <span className="chip" title="The text contained in these images, if it had been sent as plain text">text tokens (as text): <b>{fmt(s.text_tokens)}</b></span>
+        {(s.sent_as_text_tokens ?? 0) > 0 && (
+          <span className="chip">sent as text: <b>{fmt(s.sent_as_text_tokens ?? 0)}</b></span>
+        )}
         <span className="chip">output tokens: <b>{fmt(s.output_tokens)}</b></span>
         <span className="chip">images used: <b>{images.length}</b></span>
       </div>
@@ -39,6 +44,18 @@ function TokenBreakdown({ s, images, sessionId }: { s: ChatStats; images: UsedIm
         {graph} graph/docs pages · {code.length} code images from {codeFiles} files
         {fresh > 0 && ` · ${fresh} fresh file pages`}
       </div>
+      {asText.length > 0 && (
+        <div className="text-note">
+          <b>Sent as plain text, not images</b>, because the text cost fewer tokens than the image:
+          <ul>
+            {asText.map((t, i) => (
+              <li key={i}>
+                {t.file ?? t.title} — <b>{fmt(t.text_tokens ?? 0)}</b> text tokens vs {fmt(t.image_tokens_avoided ?? 0)} image tokens
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {images.length > 0 && (
         <div className="picked">
           <div className="picked-title">Images sent to the model</div>

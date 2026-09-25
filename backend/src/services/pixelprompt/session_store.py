@@ -28,6 +28,7 @@ class Session:
     graph: Any = None
     omitted_files: list[str] = field(default_factory=list)  # code files over the image cap
     file_text_tokens: dict[str, int] = field(default_factory=dict)  # tokens of a file's text, cached
+    file_image_tokens: dict[str, int] = field(default_factory=dict)  # exact image tokens of a unit, cached
     grounding_texts: list[tuple[str, str]] = field(default_factory=list)  # text behind each grounding image
     lock: threading.Lock = field(default_factory=threading.Lock)
 

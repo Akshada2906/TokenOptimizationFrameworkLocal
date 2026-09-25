@@ -20,6 +20,8 @@ export interface ChatStats {
   text_tokens: number;
   output_tokens: number;
   images_used: number;
+  sent_as_text_tokens?: number;
+  units_as_text?: number;
 }
 
 export interface UsedImage {
@@ -28,7 +30,9 @@ export interface UsedImage {
   title: string;
   width: number;
   height: number;
-  source: "grounding" | "code" | "file";
+  source: "grounding" | "code" | "file" | "text";
+  text_tokens?: number;
+  image_tokens_avoided?: number;
   file?: string;
   page?: number;
   pages?: number;
