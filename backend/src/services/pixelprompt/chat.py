@@ -8,11 +8,11 @@ from google.genai import types
 from src.config.settings import settings
 from src.helpers.pixel_renderer import estimate_image_tokens, image_size, render_text_pages
 from src.prompts import prompt
-from backend.src.services.pixelprompt.context_router import classify
-from backend.src.services.pixelprompt.graph import graph_slice
-from backend.src.services.pixelprompt.session_store import Session
-from backend.src.services.pixelprompt.tokens import count_text, modality_tokens
-from backend.src.services.pixelprompt.workspace import WorkspaceError, safe_repo_path
+from src.services.pixelprompt.context_router import select
+from src.services.pixelprompt.graph import graph_slice
+from src.services.pixelprompt.session_store import Session
+from src.services.pixelprompt.tokens import count_text, modality_tokens
+from src.services.pixelprompt.workspace import WorkspaceError, safe_repo_path
 
 log = logging.getLogger(__name__)
 _client: genai.Client | None = None
@@ -70,17 +70,23 @@ def _generate_with_retry(contents, config, attempts: int = 4):
             time.sleep(2 * (i + 1))
 
 
-def _text_tokens_in_images(session: Session, open_file: str | None) -> int:
-    """Tokens the text contained in the images would cost if it were sent as plain text."""
+def _text_tokens_in_images(session: Session, sel, sent_fresh: str | None) -> int:
+    """Tokens the text behind the images actually sent would cost as plain text."""
     total = 0
-    if session.images:  # grounding pages: architecture, graph, report, wiki, docs (+ diagram source)
-        total += session.stats.get("grounding_text_tokens") or count_text(
-            "\n\n".join(f"FILE: {t}\n{body}" for t, body in session.grounding_texts))
-    if open_file and not any(i["kind"] == "code" and i["file"] == open_file for i in session.images):
-        if open_file not in session.file_text_tokens:
-            text = safe_repo_path(session.repo_dir, open_file).read_text(encoding="utf-8")
-            session.file_text_tokens[open_file] = count_text(f"FILE: {open_file}\n{text}")
-        total += session.file_text_tokens[open_file]
+    code_files = {i["file"] for i in session.images if i["kind"] == "code"}
+    texts = dict(session.grounding_texts)
+    if sel.include_grounding and any(i["kind"] != "code" for i in session.images):
+        if "__grounding__" not in session.file_text_tokens:
+            body = "\n\n".join(f"FILE: {t}\n{b}" for t, b in session.grounding_texts if t not in code_files)
+            session.file_text_tokens["__grounding__"] = count_text(body)
+        total += session.file_text_tokens["__grounding__"]
+    for f in sel.files:
+        if f not in session.file_text_tokens:
+            text = texts.get(f)
+            if text is None:
+                text = safe_repo_path(session.repo_dir, f).read_text(encoding="utf-8")
+            session.file_text_tokens[f] = count_text(f"FILE: {f}\n{text}")
+        total += session.file_text_tokens[f]
     return total
 
 
@@ -91,41 +97,49 @@ def _used(session: Session, path, kind: str, title: str) -> dict:
 
 
 def answer(session: Session, message: str, open_file: str | None) -> dict:
-    mode = classify(message, open_file)
     ctx = session.context_dir
+    code_files = {i["file"] for i in session.images if i["kind"] == "code"}
+    sel = select(message, open_file, session.graph, code_files)
     images_used: list[dict] = []
 
-    # Repository context: graph/wiki/docs pages, then one or more images for EVERY code file.
+    # Graph/architecture/wiki pages only for structural questions (or when nothing specific matched).
     grounding_parts: list[types.Part] = []
-    if session.images:
-        pages = [img for img in session.images if img["kind"] != "code"]
-        manifest = ", ".join(f"{i+1}={img['title']}" for i, img in enumerate(pages)) or "none"
-        intro = prompt.GROUNDING_INTRO.format(manifest=manifest)
-        if session.omitted_files:
-            intro += " " + prompt.OMITTED_NOTE.format(
-                n=len(session.omitted_files), files=", ".join(session.omitted_files[:20]))
-        grounding_parts = [types.Part(text=intro)]
-        for img in session.images:
-            if img["kind"] == "code":
-                grounding_parts.append(types.Part(text=prompt.CODE_IMAGE_LABEL.format(
-                    path=img["file"], page=img["page"], pages=img["pages"])))
+    pages = [img for img in session.images if img["kind"] != "code"]
+    if sel.include_grounding and pages:
+        manifest = ", ".join(f"{i+1}={img['title']}" for i, img in enumerate(pages))
+        grounding_parts = [types.Part(text=prompt.GROUNDING_INTRO.format(manifest=manifest))]
+        for img in pages:
             grounding_parts.append(_image_part(ctx / img["name"]))
-            images_used.append({**img, "source": "code" if img["kind"] == "code" else "grounding"})
+            images_used.append({**img, "source": "grounding", "reason": "structural question"})
 
-    # The open file: already in context if it has code images, otherwise render it fresh.
+    # Only the files picked through the graph, each as its own labelled image set.
     user_parts: list[types.Part] = []
-    if open_file:
-        if any(i["kind"] == "code" and i["file"] == open_file for i in session.images):
-            user_parts.append(types.Part(text=prompt.FILE_OPEN_NOTE.format(path=open_file)))
-        else:
-            user_parts.append(types.Part(text=prompt.FILE_INTRO.format(path=open_file)))
-            for p in render_open_file(session, open_file):
+    fresh_open: str | None = None
+    if sel.files:
+        user_parts.append(types.Part(text=prompt.SELECTED_INTRO.format(files=", ".join(sel.files))))
+    for f in sel.files:
+        imgs = [i for i in session.images if i["kind"] == "code" and i["file"] == f]
+        if imgs:
+            for img in imgs:
+                user_parts.append(types.Part(text=prompt.CODE_IMAGE_LABEL.format(
+                    path=f, page=img["page"], pages=img["pages"])))
+                user_parts.append(_image_part(ctx / img["name"]))
+                images_used.append({**img, "source": "code", "reason": sel.reasons[f]})
+        else:  # e.g. the open file was over the per-file cap or not a rendered type
+            fresh_open = f
+            user_parts.append(types.Part(text=prompt.FILE_INTRO.format(path=f)))
+            for p in render_open_file(session, f):
                 user_parts.append(_image_part(p))
-                images_used.append({**_used(session, p, "file", open_file), "source": "file"})
-        if session.graph is not None:
+                images_used.append({**_used(session, p, "file", f), "source": "file", "file": f,
+                                    "reason": sel.reasons[f]})
+    if session.graph is not None:
+        for f in sel.files:
             user_parts.append(types.Part(text=prompt.GRAPH_SLICE_TEMPLATE.format(
-                path=open_file, facts=graph_slice(session.graph, open_file))))
+                path=f, facts=graph_slice(session.graph, f))))
+    if open_file:
+        user_parts.append(types.Part(text=prompt.FILE_OPEN_NOTE.format(path=open_file)))
     user_parts.append(types.Part(text=prompt.QUESTION_TEMPLATE.format(question=message)))
+    mode = sel.mode
 
     history = [types.Content(role="user" if h["role"] == "user" else "model",
                              parts=[types.Part(text=h["content"])])
@@ -152,7 +166,7 @@ def answer(session: Session, message: str, open_file: str | None) -> dict:
         image_tokens = sum(i["tokens_est"] for i in images_used)
     stats = {
         "image_tokens": image_tokens,  # what Gemini charged for the images
-        "text_tokens": _text_tokens_in_images(session, open_file),  # same content, sent as text
+        "text_tokens": _text_tokens_in_images(session, sel, fresh_open),  # same content, sent as text
         "output_tokens": (u.candidates_token_count or 0) if u else 0,
         "images_used": len(images_used),
     }

@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from src.config.settings import settings
-from backend.src.services.pixelprompt.workspace import GRAPH_DIR, GRAPH_DIRS, IGNORED_DIRS, ensure_gitignore, iter_repo_files
+from src.services.pixelprompt.workspace import GRAPH_DIR, GRAPH_DIRS, IGNORED_DIRS, ensure_gitignore, iter_repo_files
 
 DOC_HINTS = ("architecture", "design", "overview", "readme", "diagram", "flow", "structure", "adr")
 MAX_DOC_CHARS = 30_000

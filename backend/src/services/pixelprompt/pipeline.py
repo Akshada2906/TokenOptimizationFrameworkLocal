@@ -4,14 +4,14 @@ import shutil
 
 from src.config.settings import settings
 from src.helpers.pixel_renderer import estimate_image_tokens, fit_image, image_size, render_text_pages
-from backend.src.services.pixelprompt.analyzer import analyze
-from backend.src.services.pixelprompt.architecture import build_architecture_md
-from backend.src.services.pixelprompt.code_context import render_code_images
-from backend.src.services.pixelprompt.diagrams import render_diagrams
-from backend.src.services.pixelprompt.graph import Graph, graph_summary_text, load_graph
-from backend.src.services.pixelprompt.session_store import Session
-from backend.src.services.pixelprompt.tokens import grounding_comparison
-from backend.src.services.pixelprompt.workspace import WorkspaceError, clone_repo, iter_repo_files
+from src.services.pixelprompt.analyzer import analyze
+from src.services.pixelprompt.architecture import build_architecture_md
+from src.services.pixelprompt.code_context import render_code_images
+from src.services.pixelprompt.diagrams import render_diagrams
+from src.services.pixelprompt.graph import Graph, graph_summary_text, load_graph
+from src.services.pixelprompt.session_store import Session
+from src.services.pixelprompt.tokens import grounding_comparison
+from src.services.pixelprompt.workspace import WorkspaceError, clone_repo, iter_repo_files
 
 log = logging.getLogger(__name__)
 

@@ -12,7 +12,7 @@ interface Msg {
 
 const fmt = (v: number) => v.toLocaleString();
 
-function TokenBreakdown({ s, images }: { s: ChatStats; images: UsedImage[] }) {
+function TokenBreakdown({ s, images, sessionId }: { s: ChatStats; images: UsedImage[]; sessionId: string }) {
   const diff = s.text_tokens - s.image_tokens;
   const pct = s.text_tokens ? Math.round((Math.abs(diff) / s.text_tokens) * 100) : 0;
   const graph = images.filter((i) => i.source === "grounding").length;
@@ -39,6 +39,27 @@ function TokenBreakdown({ s, images }: { s: ChatStats; images: UsedImage[] }) {
         {graph} graph/docs pages · {code.length} code images from {codeFiles} files
         {fresh > 0 && ` · ${fresh} fresh file pages`}
       </div>
+      {images.length > 0 && (
+        <div className="picked">
+          <div className="picked-title">Images sent to the model</div>
+          <div className="picked-grid">
+            {images.map((im, i) => {
+              const url = api.contextImageUrl(sessionId, im.name);
+              const label = im.file ?? im.title;
+              return (
+                <a key={i} className="picked-item" href={url} target="_blank" rel="noreferrer" title={im.reason}>
+                  <img src={url} alt={label} loading="lazy" />
+                  <span className="picked-name">
+                    {label}
+                    {im.pages && im.pages > 1 ? ` (${im.page}/${im.pages})` : ""}
+                  </span>
+                  {im.reason && <span className="picked-reason">{im.reason}</span>}
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -84,7 +105,7 @@ export default function Chat({ sessionId, openFile }: { sessionId: string; openF
         {msgs.map((m, i) => (
           <div key={i} className={`msg ${m.role} ${m.error ? "err" : ""}`}>
             {m.role === "assistant" ? <ReactMarkdown>{m.content}</ReactMarkdown> : m.content}
-            {m.stats && <TokenBreakdown s={m.stats} images={m.images ?? []} />}
+            {m.stats && <TokenBreakdown s={m.stats} images={m.images ?? []} sessionId={sessionId} />}
           </div>
         ))}
         {busy && <div className="msg assistant thinking">Thinking…</div>}

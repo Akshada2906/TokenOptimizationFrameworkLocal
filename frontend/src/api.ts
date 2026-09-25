@@ -32,6 +32,7 @@ export interface UsedImage {
   file?: string;
   page?: number;
   pages?: number;
+  reason?: string;
 }
 
 export interface ChatReply {

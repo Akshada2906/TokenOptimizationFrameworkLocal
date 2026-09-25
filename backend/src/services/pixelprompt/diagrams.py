@@ -4,7 +4,7 @@ import subprocess
 from collections import defaultdict
 from pathlib import Path
 
-from backend.src.services.pixelprompt.graph import Graph, file_edges
+from src.services.pixelprompt.graph import Graph, file_edges
 
 
 def _pkg(path: str, depth: int) -> str:

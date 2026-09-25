@@ -5,10 +5,10 @@ from starlette.datastructures import UploadFile
 from src.config.settings import settings
 from src.schemas.api import (ChatRequest, ChatResponse, CreateSessionRequest, FileContent,
                              LocalFolderRequest, SessionCreated, SessionStatus)
-from backend.src.services.pixelprompt import chat as chat_service
-from backend.src.services.pixelprompt.pipeline import run_pipeline
-from backend.src.services.pixelprompt.session_store import Session, create_session, get_session
-from backend.src.services.pixelprompt.workspace import (GITIGNORE_BLOCK, GRAPH_DIR, WorkspaceError, build_tree, safe_repo_path,
+from src.services.pixelprompt import chat as chat_service
+from src.services.pixelprompt.pipeline import run_pipeline
+from src.services.pixelprompt.session_store import Session, create_session, get_session
+from src.services.pixelprompt.workspace import (GITIGNORE_BLOCK, GRAPH_DIR, WorkspaceError, build_tree, safe_repo_path,
                                     save_upload, validate_local_path, validate_repo_url)
 
 router = APIRouter(prefix="/api/sessions", tags=["sessions"])
