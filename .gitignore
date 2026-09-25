@@ -87,3 +87,8 @@ Thumbs.db
 # ---- Logs ----
 *.log
 logs/
+
+# ---- RepoGraph ----
+backend/workspaces/
+.crg-venv/
+frontend/dist/
