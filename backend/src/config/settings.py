@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     workspace_root: Path = Path.home() / ".repograph" / "workspaces"
     session_ttl_s: int = 6 * 3600
 
+    allow_local_paths: bool = True  # analyze a local folder in place (this app runs on your machine)
     allowed_git_hosts: list[str] = ["github.com", "gitlab.com", "bitbucket.org"]
     clone_timeout_s: int = 180
     graphify_timeout_s: int = 300

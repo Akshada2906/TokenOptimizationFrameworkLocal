@@ -1,20 +1,24 @@
 import { useEffect, useRef, useState } from "react";
 import { api } from "../api";
+import { canPickFolder, pickProjectFolder, saveGraphInto } from "../folderAccess";
 
-const STAGES = ["cloning", "analyzing", "rendering", "ready"];
+const STAGES = ["cloning", "analyzing", "rendering", "saving", "ready"];
 const LABELS: Record<string, string> = {
   cloning: "Cloning repository",
   analyzing: "Building dependency graph",
   rendering: "Rendering PixelPrompt images",
+  saving: "Saving code-review-graph into your folder",
   ready: "Ready",
 };
 
 export default function Landing({ onReady }: { onReady: (id: string) => void }) {
   const [url, setUrl] = useState("");
+  const [localPath, setLocalPath] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [stage, setStage] = useState<string | null>(null);
   const folderInput = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<string | null>(null);
+  const dirHandle = useRef<any>(null);
 
   useEffect(() => {
     if (!pending) return;
@@ -24,6 +28,14 @@ export default function Landing({ onReady }: { onReady: (id: string) => void }) 
         setStage(s.status);
         if (s.status === "ready") {
           clearInterval(timer);
+          if (dirHandle.current) {
+            setStage("saving");
+            try {
+              await saveGraphInto(dirHandle.current, pending);
+            } catch (e) {
+              console.warn("Could not save code-review-graph into the folder", e);
+            }
+          }
           onReady(pending);
         } else if (s.status === "error") {
           clearInterval(timer);
@@ -51,8 +63,21 @@ export default function Landing({ onReady }: { onReady: (id: string) => void }) 
     }
   };
 
+  const pickFolder = async () => {
+    setError(null);
+    try {
+      const { dir, files } = await pickProjectFolder();
+      if (!files.length) return setError("No source code files found in that folder.");
+      dirHandle.current = dir;
+      await start(() => api.createFromFiles(files));
+    } catch (e) {
+      if ((e as Error).name !== "AbortError") setError((e as Error).message);
+    }
+  };
+
   const busy = stage !== null;
-  const current = stage ? STAGES.indexOf(stage) : -1;
+  const steps = STAGES.filter((s) => s !== "saving" || dirHandle.current);
+  const current = stage ? steps.indexOf(stage) : -1;
 
   return (
     <div className="landing">
@@ -82,7 +107,35 @@ export default function Landing({ onReady }: { onReady: (id: string) => void }) 
           </button>
         </form>
 
-        <div className="or">or</div>
+        {canPickFolder() && (
+          <>
+            <div className="or">or pick a project folder (code-review-graph/ is saved inside it)</div>
+            <button disabled={busy} onClick={pickFolder}>
+              Pick project folder
+            </button>
+          </>
+        )}
+
+        <div className="or">or a folder on this machine (code-review-graph/ is created inside it)</div>
+        <form
+          className="url-row"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (localPath.trim()) start(() => api.createFromLocal(localPath.trim()));
+          }}
+        >
+          <input
+            value={localPath}
+            onChange={(e) => setLocalPath(e.target.value)}
+            placeholder="/Users/you/projects/my-repo"
+            disabled={busy}
+          />
+          <button type="submit" disabled={busy || !localPath.trim()}>
+            Analyze
+          </button>
+        </form>
+
+        <div className="or">or upload a copy of a folder (graph is not saved to your disk)</div>
         <button className="secondary" disabled={busy} onClick={() => folderInput.current?.click()}>
           Upload a folder
         </button>
@@ -100,7 +153,7 @@ export default function Landing({ onReady }: { onReady: (id: string) => void }) 
 
         {busy && (
           <ol className="stepper">
-            {STAGES.map((s, i) => (
+            {steps.map((s, i) => (
               <li key={s} className={i < current ? "done" : i === current ? "active" : ""}>
                 {LABELS[s]}
               </li>

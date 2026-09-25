@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from src.config.settings import settings
-from src.services.workspace import IGNORED_DIRS, iter_repo_files
+from src.services.pixelprompt.workspace import GRAPH_DIR, GRAPH_DIRS, IGNORED_DIRS, ensure_gitignore, iter_repo_files
 
 DOC_HINTS = ("architecture", "design", "overview", "readme", "diagram", "flow", "structure", "adr")
 MAX_DOC_CHARS = 30_000
@@ -40,7 +40,7 @@ def find_existing_graph(repo: Path) -> tuple[Path | None, Path | None]:
     graph = report = None
     for dirpath, dirnames, filenames in os.walk(repo):
         depth = Path(dirpath).relative_to(repo).parts
-        dirnames[:] = [d for d in dirnames if d not in (IGNORED_DIRS - {"graphify-out"})]
+        dirnames[:] = [d for d in dirnames if d not in (IGNORED_DIRS - GRAPH_DIRS)]
         if len(depth) > 4:
             dirnames[:] = []
         for f in filenames:
@@ -84,13 +84,18 @@ def run_graphify(repo: Path) -> bool:
         )
     except (subprocess.TimeoutExpired, OSError):
         return False
-    ok = proc.returncode == 0 and (repo / "graphify-out" / "graph.json").exists()
+    out = repo / "graphify-out"
+    ok = proc.returncode == 0 and (out / "graph.json").exists()
     if ok:  # markdown wiki (index.md + community articles); best-effort
         try:
             subprocess.run([exe, "export", "wiki"], capture_output=True, text=True,
                            timeout=settings.graphify_timeout_s, cwd=repo)
         except (subprocess.TimeoutExpired, OSError):
             pass
+        target = repo / GRAPH_DIR  # the graph lives in the repo as code-review-graph/
+        if target.exists():
+            shutil.rmtree(target)
+        out.rename(target)
     return ok
 
 
@@ -174,10 +179,12 @@ def analyze(repo: Path) -> AnalysisResult:
         res.notes.append(f"Using existing graph at {graph.relative_to(repo)}")
         return res
     if run_graphify(repo):
-        res.graph_json = repo / "graphify-out" / "graph.json"
-        rep = repo / "graphify-out" / "GRAPH_REPORT.md"
+        res.graph_json = repo / GRAPH_DIR / "graph.json"
+        rep = repo / GRAPH_DIR / "GRAPH_REPORT.md"
         res.graph_report = rep if rep.exists() else None
         res.source = "graphify"
+        if ensure_gitignore(repo):
+            res.notes.append(f"Added {GRAPH_DIR}/ to the repo's .gitignore")
         res.wiki = collect_wiki(res.graph_json)
         res.notes.append("Graph built with Graphify")
         return res

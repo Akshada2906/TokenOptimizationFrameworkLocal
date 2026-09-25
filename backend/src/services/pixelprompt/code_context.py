@@ -4,8 +4,8 @@ from pathlib import Path
 
 from src.config.settings import settings
 from src.helpers.pixel_renderer import render_text_pages
-from src.services.graph import Graph
-from src.services.workspace import IGNORED_DIRS, is_code_file, iter_repo_files
+from src.services.pixelprompt.graph import Graph
+from src.services.pixelprompt.workspace import IGNORED_DIRS, is_code_file, iter_repo_files
 
 DOC_EXTS = {".md", ".mdx"}  # docs are already rendered as grounding pages
 DATA_EXTS = {".json", ".xml"}  # often data stores; only small ones are treated as code/config

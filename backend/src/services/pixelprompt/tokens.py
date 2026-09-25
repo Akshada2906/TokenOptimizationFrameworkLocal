@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 
 
 def count_text(text: str) -> int:
-    from src.services.chat import client  # local import avoids a cycle
+    from src.services.pixelprompt.chat import client  # local import avoids a cycle
 
     try:
         return client().models.count_tokens(model=settings.gemini_model, contents=text).total_tokens or 0
@@ -21,7 +21,7 @@ def count_text(text: str) -> int:
 
 def count_images(paths: list[Path], batch: int = 25) -> int | None:
     """Exact image tokens via count_tokens, in batches to keep requests small."""
-    from src.services.chat import client
+    from src.services.pixelprompt.chat import client
 
     total = 0
     try:

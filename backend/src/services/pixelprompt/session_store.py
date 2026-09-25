@@ -22,15 +22,19 @@ class Session:
     stats: dict[str, Any] = field(default_factory=dict)
     images: list[dict[str, Any]] = field(default_factory=list)  # grounding manifest
     history: list[dict[str, str]] = field(default_factory=list)
+    local_repo: Path | None = None  # a folder analyzed in place (never deleted by cleanup)
+    graph_dir: Path | None = None  # folder holding the code-review-graph (generated or pre-existing)
+    graph_generated: bool = False  # True when we created it (so it can be saved into the user's folder)
     graph: Any = None
     omitted_files: list[str] = field(default_factory=list)  # code files over the image cap
     file_text_tokens: dict[str, int] = field(default_factory=dict)  # tokens of a file's text, cached
+    file_image_tokens: dict[str, int] = field(default_factory=dict)  # exact image tokens of a unit, cached
     grounding_texts: list[tuple[str, str]] = field(default_factory=list)  # text behind each grounding image
     lock: threading.Lock = field(default_factory=threading.Lock)
 
     @property
     def repo_dir(self) -> Path:
-        return self.root / "repo"
+        return self.local_repo or self.root / "repo"
 
     @property
     def context_dir(self) -> Path:

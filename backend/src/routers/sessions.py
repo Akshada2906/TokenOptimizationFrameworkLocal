@@ -4,11 +4,12 @@ from starlette.datastructures import UploadFile
 
 from src.config.settings import settings
 from src.schemas.api import (ChatRequest, ChatResponse, CreateSessionRequest, FileContent,
-                             SessionCreated, SessionStatus)
-from src.services import chat as chat_service
-from src.services.pipeline import run_pipeline
-from src.services.session_store import Session, create_session, get_session
-from src.services.workspace import WorkspaceError, build_tree, safe_repo_path, save_upload, validate_repo_url
+                             LocalFolderRequest, SessionCreated, SessionStatus)
+from src.services.pixelprompt import chat as chat_service
+from src.services.pixelprompt.pipeline import run_pipeline
+from src.services.pixelprompt.session_store import Session, create_session, get_session
+from src.services.pixelprompt.workspace import (GITIGNORE_BLOCK, GRAPH_DIR, WorkspaceError, build_tree, safe_repo_path,
+                                    save_upload, validate_local_path, validate_repo_url)
 
 router = APIRouter(prefix="/api/sessions", tags=["sessions"])
 
@@ -35,6 +36,21 @@ def create_from_url(body: CreateSessionRequest, tasks: BackgroundTasks):
         raise HTTPException(400, str(e))
     session = create_session(url)
     tasks.add_task(run_pipeline, session, url)
+    return SessionCreated(session_id=session.id)
+
+
+@router.post("/local", response_model=SessionCreated)
+def create_from_local(body: LocalFolderRequest, tasks: BackgroundTasks):
+    """Analyze a folder on this machine in place; code-review-graph/ is written inside it."""
+    if not settings.allow_local_paths:
+        raise HTTPException(403, "Local folder analysis is disabled on this server.")
+    try:
+        path = validate_local_path(body.path)
+    except WorkspaceError as e:
+        raise HTTPException(400, str(e))
+    session = create_session(str(path))
+    session.local_repo = path
+    tasks.add_task(run_pipeline, session, None)
     return SessionCreated(session_id=session.id)
 
 
@@ -101,6 +117,61 @@ def context_image(sid: str, name: str):
     if s.context_dir.resolve() not in target.parents or not target.is_file():
         raise HTTPException(404, "Not found.")
     return FileResponse(target)
+
+
+def _graph_files(s: Session) -> list[dict]:
+    files = []
+    if s.graph_dir and s.graph_dir.is_dir():
+        for p in sorted(s.graph_dir.rglob("*")):
+            rel = p.relative_to(s.graph_dir)
+            if p.is_file() and "cache" not in rel.parts and not p.name.startswith("."):
+                files.append({"path": rel.as_posix(), "size": p.stat().st_size})
+    return files
+
+
+@router.get("/{sid}/graph-files")
+def graph_files(sid: str):
+    """Files of a graph WE generated, so the browser can save them into the user's own folder."""
+    s = _ready(sid)
+    files = _graph_files(s) if s.graph_generated else []
+    return {"folder": GRAPH_DIR, "files": files, "gitignore": GITIGNORE_BLOCK}
+
+
+@router.get("/{sid}/graph")
+def graph_info(sid: str):
+    """Everything the UI needs to show the knowledge graph and the folder/files behind it."""
+    s = _ready(sid)
+    files = _graph_files(s)
+    return {
+        "folder": s.graph_dir.name if s.graph_dir else GRAPH_DIR,
+        "path": str(s.graph_dir) if s.graph_dir else None,
+        "generated": s.graph_generated,
+        "source": s.stats.get("graph_source"),
+        "nodes": s.stats.get("graph_nodes", 0),
+        "edges": s.stats.get("graph_edges", 0),
+        "has_html": any(f["path"] == "graph.html" for f in files),
+        "files": files,
+    }
+
+
+@router.get("/{sid}/graph-file")
+def graph_file(sid: str, path: str):
+    s = _ready(sid)
+    if not s.graph_dir:
+        raise HTTPException(404, "No graph for this session.")
+    target = (s.graph_dir / path).resolve()
+    if s.graph_dir.resolve() not in target.parents or not target.is_file():
+        raise HTTPException(404, "Not found.")
+    return FileResponse(target)
+
+
+@router.get("/{sid}/graph.html")
+def graph_html(sid: str):
+    s = _ready(sid)
+    html = s.graph_dir / "graph.html" if s.graph_dir else None
+    if not html or not html.is_file():
+        raise HTTPException(404, "No interactive graph for this repository.")
+    return FileResponse(html, media_type="text/html")
 
 
 @router.get("/{sid}/diagram.svg")

@@ -7,6 +7,10 @@ class CreateSessionRequest(BaseModel):
     repo_url: str = Field(min_length=8, max_length=500)
 
 
+class LocalFolderRequest(BaseModel):
+    path: str = Field(min_length=1, max_length=1000)
+
+
 class SessionCreated(BaseModel):
     session_id: str
 

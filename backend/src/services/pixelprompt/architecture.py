@@ -3,8 +3,8 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from src.services.graph import Graph
-from src.services.workspace import IGNORED_DIRS, iter_repo_files
+from src.services.pixelprompt.graph import Graph
+from src.services.pixelprompt.workspace import IGNORED_DIRS, iter_repo_files
 
 LANGS = {".py": "Python", ".js": "JavaScript", ".jsx": "JavaScript", ".ts": "TypeScript",
          ".tsx": "TypeScript", ".java": "Java", ".go": "Go", ".rs": "Rust", ".rb": "Ruby",
