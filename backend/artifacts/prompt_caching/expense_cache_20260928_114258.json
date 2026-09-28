@@ -1,0 +1,136 @@
+{
+  "generated_at": "2026-09-28T06:12:28.769598+00:00",
+  "model": "gemini-2.5-flash",
+  "claims_run": 3,
+  "source_document": {
+    "path": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\source_data\\expense_policy_fy2026.pdf",
+    "pages": 19,
+    "extractable_characters": 45579
+  },
+  "policy_characters": 45579,
+  "policy_token_precheck": 9920,
+  "cache": {
+    "status": "reused",
+    "name": "cachedContents/o2jfflacmoktd7ebehfitbhvhy0xh0wai6tjdjoo",
+    "ttl_seconds": 3600,
+    "context_tokens": 9998,
+    "creation_latency_s": 2.455,
+    "deleted_after_run": true
+  },
+  "without_cache": {
+    "results": [
+      {
+        "claim_id": "CLM-001",
+        "expected": "Compliant",
+        "classification": "Compliant",
+        "classification_matches_expected": true,
+        "response": "{\n  \"classification\": \"Compliant\",\n  \"explanation\": \"The hotel rate of USD 228 per night for Chicago is within the Appendix A limit of USD 275, and taxes are eligible. The claim was submitted within 60 days of travel, and an itemized hotel folio and business purpose were provided.\",\n  \"policy_references\": [\n    \"1\",\n    \"2\",\n    \"4\",\n    \"Appendix A\"\n  ]\n}",
+        "latency_s": 3.904,
+        "prompt_tokens": 10058,
+        "cached_tokens": 0,
+        "new_input_tokens": 10058,
+        "output_tokens": 105,
+        "total_tokens": 10589
+      },
+      {
+        "claim_id": "CLM-002",
+        "expected": "Non-compliant",
+        "classification": "Non-compliant",
+        "classification_matches_expected": true,
+        "response": "{\n  \"classification\": \"Non-compliant\",\n  \"explanation\": \"Business or first class air travel is Non-compliant unless required as a documented medical accommodation approved by People Operations. The reason provided, 'more comfortable,' does not meet this policy requirement.\",\n  \"policy_references\": [\n    \"3\"\n  ]\n}",
+        "latency_s": 2.788,
+        "prompt_tokens": 10043,
+        "cached_tokens": 9124,
+        "new_input_tokens": 919,
+        "output_tokens": 72,
+        "total_tokens": 10373
+      },
+      {
+        "claim_id": "CLM-003",
+        "expected": "Needs review",
+        "classification": "Non-compliant",
+        "classification_matches_expected": false,
+        "response": "{\n  \"classification\": \"Non-compliant\",\n  \"explanation\": \"The claim for client entertainment is missing required attendee names and company names, which is a clear violation of policy.\",\n  \"policy_references\": [\n    \"2\"\n  ]\n}",
+        "latency_s": 6.365,
+        "prompt_tokens": 10055,
+        "cached_tokens": 9124,
+        "new_input_tokens": 931,
+        "output_tokens": 57,
+        "total_tokens": 11143
+      }
+    ],
+    "totals": {
+      "prompt_tokens": 30156,
+      "cached_tokens": 18248,
+      "new_input_tokens": 11908,
+      "output_tokens": 234,
+      "total_tokens": 32105,
+      "latency_s": 13.057,
+      "correct_classifications": 2
+    }
+  },
+  "with_cache": {
+    "results": [
+      {
+        "claim_id": "CLM-001",
+        "expected": "Compliant",
+        "classification": "Compliant",
+        "classification_matches_expected": true,
+        "response": "{\n  \"classification\": \"Compliant\",\n  \"explanation\": \"The hotel rate of USD 228 per night is within the Chicago limit of USD 275 per night, excluding tax. Taxes are eligible. The claim was submitted within 60 days of travel, an itemized folio was attached, and a business purpose was provided.\",\n  \"policy_references\": [\n    \"2\",\n    \"4\",\n    \"Appendix A\"\n  ]\n}",
+        "latency_s": 3.891,
+        "prompt_tokens": 10058,
+        "cached_tokens": 9998,
+        "new_input_tokens": 60,
+        "output_tokens": 103,
+        "total_tokens": 10571
+      },
+      {
+        "claim_id": "CLM-002",
+        "expected": "Non-compliant",
+        "classification": "Non-compliant",
+        "classification_matches_expected": true,
+        "response": "{\n  \"classification\": \"Non-compliant\",\n  \"explanation\": \"Business or first class air travel is Non-compliant unless required as a documented medical accommodation approved by People Operations. The employee's reason of 'more comfortable' does not meet this requirement.\",\n  \"policy_references\": [\n    \"3\"\n  ]\n}",
+        "latency_s": 2.459,
+        "prompt_tokens": 10043,
+        "cached_tokens": 9998,
+        "new_input_tokens": 45,
+        "output_tokens": 73,
+        "total_tokens": 10261
+      },
+      {
+        "claim_id": "CLM-003",
+        "expected": "Needs review",
+        "classification": "Non-compliant",
+        "classification_matches_expected": false,
+        "response": "{\n  \"classification\": \"Non-compliant\",\n  \"explanation\": \"The claim for client entertainment is missing required attendee names and company names, which is a clear violation of policy.\",\n  \"policy_references\": [\n    \"2\"\n  ]\n}",
+        "latency_s": 7.088,
+        "prompt_tokens": 10055,
+        "cached_tokens": 9998,
+        "new_input_tokens": 57,
+        "output_tokens": 57,
+        "total_tokens": 11143
+      }
+    ],
+    "totals": {
+      "prompt_tokens": 30156,
+      "cached_tokens": 29994,
+      "new_input_tokens": 162,
+      "output_tokens": 233,
+      "total_tokens": 31975,
+      "latency_s": 13.438,
+      "correct_classifications": 2
+    }
+  },
+  "costs": {
+    "available": false,
+    "reason": "Set all EXPENSE_CACHE_* pricing environment variables to calculate an estimate.",
+    "rates": {
+      "standard_input_usd_per_m": null,
+      "cached_input_usd_per_m": null,
+      "output_usd_per_m": null,
+      "cache_write_usd_per_m": null,
+      "storage_usd_per_m_token_hour": null
+    }
+  },
+  "break_even_claims": null
+}

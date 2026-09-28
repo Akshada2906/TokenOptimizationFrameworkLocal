@@ -1,0 +1,62 @@
+[
+  {
+    "id": "CLM-001",
+    "claim": "Hotel in Chicago for two business nights: USD 228 per night plus USD 39 tax. Itemized hotel folio attached. Submitted 12 days after travel. Business purpose: customer implementation workshop.",
+    "expected": "Compliant"
+  },
+  {
+    "id": "CLM-002",
+    "claim": "Round-trip business-class flight from New York to London. The employee says it was more comfortable. Receipt and business purpose are attached.",
+    "expected": "Non-compliant"
+  },
+  {
+    "id": "CLM-003",
+    "claim": "Client dinner for USD 360 for two client attendees and one Northstar employee. An itemized receipt and business purpose are attached, but the claimant did not provide attendee names or company names.",
+    "expected": "Needs review"
+  },
+  {
+    "id": "CLM-004",
+    "claim": "USD 82 airport taxi after a customer meeting. The claim includes a credit-card statement but no itemized taxi receipt. Submitted within 10 days.",
+    "expected": "Needs review"
+  },
+  {
+    "id": "CLM-005",
+    "claim": "Mileage claim for 40 miles from home to the employee's normal office. A complete mileage log is attached.",
+    "expected": "Non-compliant"
+  },
+  {
+    "id": "CLM-006",
+    "claim": "Annual design-software subscription for USD 720. The employee included the invoice and manager approval but no Procurement approval.",
+    "expected": "Non-compliant"
+  },
+  {
+    "id": "CLM-007",
+    "claim": "Conference registration for USD 1,450. Manager approval and receipt are attached. The claim was submitted 20 days after purchase.",
+    "expected": "Compliant"
+  },
+  {
+    "id": "CLM-008",
+    "claim": "International emergency flight booked before an approved travel request. A Vice President approved the emergency in writing the next business day. Economy receipt is attached.",
+    "expected": "Compliant"
+  },
+  {
+    "id": "CLM-009",
+    "claim": "A USD 1,800 laptop was purchased as two USD 900 transactions. Both receipts and manager approval are attached, but there is no purchase order.",
+    "expected": "Non-compliant"
+  },
+  {
+    "id": "CLM-010",
+    "claim": "Dinner during an overnight client trip: USD 48 food and USD 8 tip. Itemized receipt attached. The employee stayed in Denver and did not consume a hotel or airline-provided meal.",
+    "expected": "Compliant"
+  },
+  {
+    "id": "CLM-011",
+    "claim": "USD 125 parking ticket received during a customer visit. Copy of ticket and manager approval attached.",
+    "expected": "Non-compliant"
+  },
+  {
+    "id": "CLM-012",
+    "claim": "A USD 42 meal in Tokyo is claimed with an itemized receipt and business purpose, but the claimant omitted the original currency and exchange-rate evidence.",
+    "expected": "Needs review"
+  }
+]

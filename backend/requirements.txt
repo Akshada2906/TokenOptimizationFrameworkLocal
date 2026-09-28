@@ -12,3 +12,5 @@ Pillow
 pixelprompt
 networkx
 graphifyy
+reportlab
+pypdf
