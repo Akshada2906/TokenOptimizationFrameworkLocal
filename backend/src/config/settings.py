@@ -13,6 +13,11 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     gemini_model: str = "gemini-2.5-flash"
 
+    # Expense-policy explicit-cache UI.
+    prompt_cache_model: str = ""
+    prompt_cache_ttl_s: int = 3600
+    prompt_cache_max_pdf_mb: int = 20
+
     # Cloned/uploaded repos, Graphify output and rendered images live here, outside this project.
     workspace_root: Path = Path.home() / ".repograph" / "workspaces"
     session_ttl_s: int = 6 * 3600

@@ -13,3 +13,21 @@ Backend (needs Graphviz `dot` for diagrams, `git`, and `GEMINI_API_KEY` in `back
 Frontend:
 
     cd frontend && npm install && npm run dev   # http://localhost:5173
+
+## Expense-policy cache UI
+
+This is a separate React app. With the backend running:
+
+```text
+cd prompt-caching-frontend && npm install && npm run dev
+```
+
+Open `http://localhost:5174`.
+Upload a selectable-text expense-policy PDF, create its Gemini explicit cache, then enter
+claims one at a time. The UI shows only the cached-path response and measured cached/new token
+usage.
+
+```text
+PROMPT_CACHE_MODEL=gemini-2.5-flash
+PROMPT_CACHE_TTL_S=3600
+```

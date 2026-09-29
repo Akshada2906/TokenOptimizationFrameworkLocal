@@ -8,7 +8,10 @@ pydantic-settings==2.7.1
 python-multipart
 python-dotenv
 google-genai
+instructor[google-genai]>=1.14.1
 Pillow
 pixelprompt
 networkx
 graphifyy
+reportlab
+pypdf

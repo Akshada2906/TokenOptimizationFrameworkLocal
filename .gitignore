@@ -92,3 +92,8 @@ logs/
 backend/workspaces/
 .crg-venv/
 frontend/dist/
+
+# Generated prompt-caching reports and source PDFs
+backend/artifacts/prompt_caching/source_data/
+backend/artifacts/prompt_caching/expense_cache_*.json
+backend/artifacts/prompt_caching/expense_cache_*.md
