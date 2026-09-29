@@ -54,43 +54,6 @@ export interface ContextImage {
   height: number;
 }
 
-export interface PolicyCacheSession {
-  session_id: string;
-  source_name: string;
-  pages: number;
-  extracted_characters: number;
-  policy_tokens: number;
-  cache_context_tokens: number;
-  model: string;
-  ttl_seconds: number;
-  expires_at: number;
-  claims_processed: number;
-}
-
-export interface PolicyClaimReply {
-  answer: {
-    classification: "Compliant" | "Non-compliant" | "Needs review";
-    explanation: string;
-    policy_references: string[];
-  };
-  usage: { prompt_tokens: number; cached_tokens: number; new_input_tokens: number; output_tokens: number };
-  latency_s: number;
-  costs: {
-    currency: "USD";
-    pricing: Record<string, number | string>;
-    this_claim: { without_cache_equivalent_usd: number; with_explicit_cache_usd: number; savings_usd: number };
-    session: {
-      claims_after_this_one: number;
-      cache_creation_usd: number;
-      cache_storage_for_ttl_usd: number;
-      without_cache_equivalent_usd: number;
-      with_explicit_cache_total_usd: number;
-      net_savings_usd: number;
-    };
-  };
-  session: PolicyCacheSession;
-}
-
 async function json<T>(res: Response): Promise<T> {
   if (!res.ok) {
     let detail = res.statusText;
@@ -134,17 +97,6 @@ export interface GraphInfo {
 }
 
 export const api = {
-  createPolicyCache: (file: File) => {
-    const form = new FormData();
-    form.append("file", file);
-    return fetch("/api/prompt-caching/policies", { method: "POST", body: form }).then((r) => json<PolicyCacheSession>(r));
-  },
-  checkPolicyClaim: (id: string, claim: string) =>
-    fetch(`/api/prompt-caching/policies/${encodeURIComponent(id)}/claims`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ claim }),
-    }).then((r) => json<PolicyClaimReply>(r)),
   createFromUrl: (repo_url: string) =>
     fetch(base, {
       method: "POST",

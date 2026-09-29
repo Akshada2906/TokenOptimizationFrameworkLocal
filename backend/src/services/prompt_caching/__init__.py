@@ -1,1 +1,1 @@
-"""Standalone prompt-caching proof of concept services."""
+"""Financial-policy review with Gemini explicit context caching."""

@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import hashlib
 import io
-import json
 import shutil
 import threading
 import time
@@ -18,13 +16,11 @@ from google.genai import types
 from pypdf import PdfReader
 
 from src.config.settings import settings
-
-
-SYSTEM_INSTRUCTION = """You are a precise Finance policy checker. Use only the provided
-expense policy and claim facts. Do not invent a receipt, approval, business purpose,
-exchange-rate evidence, or exception. Return JSON only with exactly these keys:
-classification (Compliant, Non-compliant, or Needs review), explanation, and
-policy_references (an array of policy section identifiers)."""
+from src.services.prompt_caching.reviewer import (
+    SYSTEM_INSTRUCTION,
+    create_structured_client,
+    review_claim,
+)
 
 
 class PromptCacheError(Exception):
@@ -50,6 +46,7 @@ class PolicyCacheSession:
 _sessions: dict[str, PolicyCacheSession] = {}
 _store_lock = threading.RLock()
 _client: genai.Client | None = None
+_structured_client: Any | None = None
 
 
 def _model() -> str:
@@ -63,6 +60,14 @@ def _client_instance() -> genai.Client:
     if _client is None:
         _client = genai.Client(api_key=settings.gemini_api_key)
     return _client
+
+
+def _structured_client_instance() -> Any:
+    """Return the Gemini client wrapped by Instructor for Pydantic validation/retries."""
+    global _structured_client
+    if _structured_client is None:
+        _structured_client = create_structured_client(_client_instance())
+    return _structured_client
 
 
 def _content(policy_text: str) -> list[types.Content]:
@@ -92,86 +97,6 @@ def _usage(response: Any) -> dict[str, int]:
         "cached_tokens": cached_tokens,
         "new_input_tokens": max(prompt_tokens - cached_tokens, 0),
         "output_tokens": int(getattr(metadata, "candidates_token_count", 0) or 0),
-    }
-
-
-def _usd(tokens: int, per_million: float) -> float:
-    return tokens * per_million / 1_000_000
-
-
-def _pricing() -> dict[str, Any]:
-    return {
-        "standard_input_usd_per_m": settings.prompt_cache_standard_input_usd_per_m,
-        "cached_input_usd_per_m": settings.prompt_cache_cached_input_usd_per_m,
-        "output_usd_per_m": settings.prompt_cache_output_usd_per_m,
-        "storage_usd_per_m_token_hour": settings.prompt_cache_storage_usd_per_m_token_hour,
-        "source_url": "https://ai.google.dev/gemini-api/docs/pricing",
-        "note": "Estimated USD using server-configured Gemini pricing; verify the active model and billing tier.",
-    }
-
-
-def _costs(session: PolicyCacheSession, usage: dict[str, int], output_tokens: int) -> dict[str, Any]:
-    prices = _pricing()
-    standard = prices["standard_input_usd_per_m"]
-    cached = prices["cached_input_usd_per_m"]
-    output = prices["output_usd_per_m"]
-    storage = prices["storage_usd_per_m_token_hour"]
-    no_cache = _usd(usage["prompt_tokens"], standard) + _usd(output_tokens, output)
-    cached_claim = (
-        _usd(usage["new_input_tokens"], standard)
-        + _usd(usage["cached_tokens"], cached)
-        + _usd(output_tokens, output)
-    )
-    cache_creation = _usd(session.cache_context_tokens, standard)
-    storage_total = (
-        session.cache_context_tokens
-        * (settings.prompt_cache_ttl_s / 3600)
-        * storage
-        / 1_000_000
-    )
-    all_claims = session.claims + [{"usage": usage, "output_tokens": output_tokens}]
-    session_no_cache = sum(
-        _usd(int(item["usage"]["prompt_tokens"]), standard) + _usd(int(item["output_tokens"]), output)
-        for item in all_claims
-    )
-    session_cached_claims = sum(
-        _usd(int(item["usage"]["new_input_tokens"]), standard)
-        + _usd(int(item["usage"]["cached_tokens"]), cached)
-        + _usd(int(item["output_tokens"]), output)
-        for item in all_claims
-    )
-    session_explicit = cache_creation + storage_total + session_cached_claims
-    return {
-        "currency": "USD",
-        "pricing": prices,
-        "this_claim": {
-            "without_cache_equivalent_usd": no_cache,
-            "with_explicit_cache_usd": cached_claim,
-            "savings_usd": no_cache - cached_claim,
-        },
-        "session": {
-            "claims_after_this_one": len(all_claims),
-            "cache_creation_usd": cache_creation,
-            "cache_storage_for_ttl_usd": storage_total,
-            "without_cache_equivalent_usd": session_no_cache,
-            "with_explicit_cache_total_usd": session_explicit,
-            "net_savings_usd": session_no_cache - session_explicit,
-        },
-    }
-
-
-def _parse_answer(text: str) -> dict[str, Any]:
-    try:
-        value = json.loads(text)
-    except json.JSONDecodeError:
-        return {"classification": "Needs review", "explanation": text or "No model response.", "policy_references": []}
-    classification = value.get("classification")
-    if classification not in {"Compliant", "Non-compliant", "Needs review"}:
-        classification = "Needs review"
-    return {
-        "classification": classification,
-        "explanation": str(value.get("explanation") or "No explanation returned."),
-        "policy_references": value.get("policy_references") if isinstance(value.get("policy_references"), list) else [],
     }
 
 
@@ -271,24 +196,20 @@ def check_claim(session_id: str, claim: str) -> dict[str, Any]:
     with session.lock:
         started = time.perf_counter()
         try:
-            response = _client_instance().models.generate_content(
-                model=_model(),
-                contents=[types.Content(role="user", parts=[types.Part(text="Expense claim:\n" + claim.strip())])],
-                config=types.GenerateContentConfig(
-                    cached_content=session.cache_name, temperature=0, response_mime_type="application/json"
-                ),
+            answer, response = review_claim(
+                _structured_client_instance(),
+                _model(),
+                claim,
+                cached_content=session.cache_name,
             )
         except Exception as exc:
             raise PromptCacheError(f"Gemini could not check this claim: {exc}") from exc
         elapsed_s = time.perf_counter() - started
         usage = _usage(response)
-        answer = _parse_answer(response.text or "")
-        costs = _costs(session, usage, usage["output_tokens"])
         session.claims.append({"usage": usage, "output_tokens": usage["output_tokens"]})
         return {
-            "answer": answer,
+            "answer": answer.model_dump(),
             "usage": usage,
             "latency_s": round(elapsed_s, 3),
-            "costs": costs,
             "session": session_details(session),
         }

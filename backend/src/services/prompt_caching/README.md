@@ -8,7 +8,7 @@ From `backend` in the environment that has `google-genai` and the backend requir
 
 ```bat
 set "PYTHONPATH=%CD%;%CD%\.."
-uv run python -m src.services.prompt_caching.gemini_expense_cache_poc
+uv run python -m src.services.prompt_caching.benchmark
 ```
 
 Set `GEMINI_API_KEY` in `backend/.env`. Optionally select a cache-capable model:
@@ -27,19 +27,5 @@ backend/artifacts/prompt_caching/source_data/expense_policy_fy2026.pdf
 ```
 
 The POC extracts text from the PDF before placing it in Gemini's cache. This is intentional: it evaluates reusable **policy text** rather than image or PDF-vision tokens. Use another selectable-text PDF with `--source-pdf "C:\path\to\policy.pdf"`; scanned PDFs need OCR before they can be used.
-
-## Cost estimate inputs
-
-Gemini usage metadata reports tokens but not an invoice amount. To enable the report's transparent USD estimate, set current rates for the chosen model in `backend/.env`:
-
-```text
-EXPENSE_CACHE_STANDARD_INPUT_USD_PER_M=
-EXPENSE_CACHE_CACHED_INPUT_USD_PER_M=
-EXPENSE_CACHE_OUTPUT_USD_PER_M=
-EXPENSE_CACHE_CACHE_WRITE_USD_PER_M=
-EXPENSE_CACHE_STORAGE_USD_PER_M_TOKEN_HOUR=
-```
-
-The report shows cache-creation, cache-storage, direct, cached, net, and break-even estimates. Leave a value blank if the provider pricing card does not define that charge; the POC will clearly mark the cost calculation unavailable instead of inventing a price.
 
 The cache is deleted after the run by default. Use `--keep-cache` only when you deliberately want to test reuse across separate runs; storage can continue until its TTL expires or you delete it.

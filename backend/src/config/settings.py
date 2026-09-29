@@ -13,15 +13,10 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     gemini_model: str = "gemini-2.5-flash"
 
-    # Expense-policy explicit-cache UI. Defaults are Gemini 2.5 Flash Standard
-    # paid-tier text prices checked on 2026-09-28; override when model/pricing changes.
+    # Expense-policy explicit-cache UI.
     prompt_cache_model: str = ""
     prompt_cache_ttl_s: int = 3600
     prompt_cache_max_pdf_mb: int = 20
-    prompt_cache_standard_input_usd_per_m: float = 0.30
-    prompt_cache_cached_input_usd_per_m: float = 0.03
-    prompt_cache_output_usd_per_m: float = 2.50
-    prompt_cache_storage_usd_per_m_token_hour: float = 1.00
 
     # Cloned/uploaded repos, Graphify output and rendered images live here, outside this project.
     workspace_root: Path = Path.home() / ".repograph" / "workspaces"
