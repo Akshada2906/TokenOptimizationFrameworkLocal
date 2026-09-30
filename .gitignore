@@ -97,3 +97,6 @@ frontend/dist/
 backend/artifacts/prompt_caching/source_data/
 backend/artifacts/prompt_caching/expense_cache_*.json
 backend/artifacts/prompt_caching/expense_cache_*.md
+backend/artifacts/prompt_caching/pixelprompt_images/
+backend/artifacts/prompt_caching/image_cache_*.json
+backend/artifacts/prompt_caching/image_cache_*.md

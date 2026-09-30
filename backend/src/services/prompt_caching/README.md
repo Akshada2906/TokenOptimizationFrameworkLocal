@@ -29,3 +29,23 @@ backend/artifacts/prompt_caching/source_data/expense_policy_fy2026.pdf
 The POC extracts text from the PDF before placing it in Gemini's cache. This is intentional: it evaluates reusable **policy text** rather than image or PDF-vision tokens. Use another selectable-text PDF with `--source-pdf "C:\path\to\policy.pdf"`; scanned PDFs need OCR before they can be used.
 
 The cache is deleted after the run by default. Use `--keep-cache` only when you deliberately want to test reuse across separate runs; storage can continue until its TTL expires or you delete it.
+
+## PixelPrompt image-cache benchmark
+
+This companion benchmark extracts each PDF page, renders it as a separate PixelPrompt PNG,
+then compares sending all PNGs on every request with reusing the same PNG set through one
+Gemini explicit cache:
+
+```bat
+uv run python -m src.services.prompt_caching.image_cache_benchmark --claims 3
+```
+
+To generate and inspect the images without making Gemini API calls:
+
+```bat
+uv run python -m src.services.prompt_caching.image_cache_benchmark --prepare-only --regenerate-images
+```
+
+Generated PNGs and reports are written below `backend/artifacts/prompt_caching/` and ignored
+by Git. PixelPrompt receives extracted text, so this benchmark measures text rendered as images;
+it does not preserve diagrams or other graphics from an arbitrary source PDF.
