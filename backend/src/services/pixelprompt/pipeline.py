@@ -6,7 +6,7 @@ from src.config.settings import settings
 from src.helpers.pixel_renderer import estimate_image_tokens, fit_image, image_size, render_text_pages
 from src.services.pixelprompt.analyzer import analyze
 from src.services.pixelprompt.architecture import build_architecture_md
-from src.services.pixelprompt.code_context import render_code_images
+from src.services.pixelprompt.code_context import index_code_files
 from src.services.pixelprompt.diagrams import render_diagrams
 from src.services.pixelprompt.graph import Graph, graph_summary_text, load_graph
 from src.services.pixelprompt.session_store import Session
@@ -99,14 +99,9 @@ def _analyze_and_render(session: Session) -> None:
     titles = ", ".join(t for t, *_ in sources)
     for p in pages:
         images.append(_entry(p, "context", f"grounding pages ({titles})", ctx))
-    # Every code file gets its own image(s): this is what lets the assistant read any file.
-    code_entries, code_texts, included, omitted = render_code_images(repo, graph, ctx / "grounding" / "code")
-    session.grounding_texts += code_texts
-    for e in code_entries:
-        img = _entry(e["path"], "code", e["title"], ctx)
-        img.update({"file": e["file"], "page": e["page"], "pages": e["pages"]})
-        images.append(img)
-    session.omitted_files = omitted
+    # Every code file is indexed (not rendered yet): the assistant can ask for any of them, and
+    # chat.answer() renders just the ones a question actually selects, on demand.
+    session.code_files = index_code_files(repo)
     session.images = images
 
     raw_tokens, n_files = _raw_repo_tokens(session)
@@ -120,8 +115,7 @@ def _analyze_and_render(session: Session) -> None:
         "grounding_image_tokens_est": image_tokens,
         "raw_repo_tokens_est": raw_tokens,
         "graph_dir": str(session.graph_dir) if session.graph_dir else None,
-        "code_files": len(included),
-        "code_files_omitted": len(omitted),
+        "code_files": len(session.code_files),
         "notes": result.notes,
         "has_diagram_svg": (ctx / "diagrams" / "dependencies.svg").exists(),
     }

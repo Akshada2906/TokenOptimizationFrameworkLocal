@@ -24,6 +24,16 @@ STOP = {
     "where", "why", "which", "does", "do", "this", "that", "it", "with", "from", "me", "my",
     "can", "you", "any", "there", "about", "file", "code", "function", "class", "method",
 }
+# Graph symbols named after generic config/programming words (a JSON "files" key, a "data"
+# variable, ...) match almost any question about the repo; they're too common to trust as a
+# signal on their own, so a graph-symbol match must carry at least one non-generic token.
+GENERIC_SYMBOLS = {
+    "files", "file", "data", "config", "configs", "value", "values", "name", "names", "type",
+    "types", "list", "lists", "item", "items", "key", "keys", "index", "id", "ids", "path",
+    "paths", "test", "tests", "option", "options", "setting", "settings", "param", "params",
+    "arg", "args", "result", "results", "output", "outputs", "input", "inputs", "main", "utils",
+    "util", "helper", "helpers", "default", "defaults", "props", "state",
+}
 
 
 @dataclass
@@ -34,10 +44,15 @@ class Selection:
     reasons: dict[str, str] = field(default_factory=dict)  # file -> why it was picked
 
 
+def _stem(t: str) -> str:
+    # crude singular/plural fold so "domains" (a folder) matches a "domain" query, "files" a "file"
+    return t[:-1] if len(t) > 4 and t.endswith("s") and not t.endswith("ss") else t
+
+
 def _tokens(text: str) -> set[str]:
     # split camelCase / snake_case / paths so "renderTextPages" matches "render_text_pages"
     text = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", text)
-    return {t for t in re.split(r"[^A-Za-z0-9]+", text.lower()) if len(t) > 2 and t not in STOP}
+    return {_stem(t) for t in re.split(r"[^A-Za-z0-9]+", text.lower()) if len(t) > 2 and t not in STOP}
 
 
 def _same(a: str, b: str) -> bool:
@@ -78,11 +93,9 @@ def select(message: str, open_file: str | None, graph, code_files: set[str]) -> 
             target = next((c for c in code_files if _same(c, f)), None)
             if not target:
                 continue
-            lt = _tokens(label)
-            if len(label) > 3 and re.search(rf"\b{re.escape(label.lower().rstrip('()'))}\b", lowered):
-                bump(target, 6, f"symbol in graph: {label}")
-            elif lt and lt <= q_tokens and len(lt) >= 2:
-                bump(target, 4, f"symbol in graph: {label}")
+            lt = _tokens(label) - GENERIC_SYMBOLS
+            if lt and lt <= q_tokens:
+                bump(target, 6 if len(lt) >= 2 else 4, f"symbol in graph: {label}")
 
     matched = [f for f, _ in sorted(score.items(), key=lambda kv: -kv[1])][:MAX_MATCHED]
 
