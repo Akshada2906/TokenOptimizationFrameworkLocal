@@ -34,6 +34,7 @@ export interface UsedImage {
   text_tokens?: number;
   image_tokens_avoided?: number;
   file?: string;
+  files?: string[]; // set instead of `file` when several files share one dense image
   page?: number;
   pages?: number;
   reason?: string;

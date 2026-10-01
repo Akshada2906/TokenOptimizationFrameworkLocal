@@ -33,9 +33,7 @@ class Settings(BaseSettings):
     # PixelPrompt rendering (library: pixelprompt)
     pixel_page_px: int = 1536  # max page edge; 2x2 Gemini tiles
     pixel_font_px: int | None = None  # None = use the PixelPrompt content-type preset
-    pixel_file_font_px: int = 10  # open files are read line by line, so render them larger than the 'code' preset (7)
-    pixel_code_font_px: int = 9  # per-file code images
-    max_code_images: int = 200  # safety cap on per-file images sent every turn
+    pixel_file_font_px: int = 10  # files are rendered on demand and read line by line
     max_code_file_bytes: int = 200_000
     max_grounding_pages: int = 12
     max_file_pages: int = 4

@@ -26,7 +26,7 @@ class Session:
     graph_dir: Path | None = None  # folder holding the code-review-graph (generated or pre-existing)
     graph_generated: bool = False  # True when we created it (so it can be saved into the user's folder)
     graph: Any = None
-    omitted_files: list[str] = field(default_factory=list)  # code files over the image cap
+    code_files: list[str] = field(default_factory=list)  # every code file indexed; rendered on demand in chat
     file_text_tokens: dict[str, int] = field(default_factory=dict)  # tokens of a file's text, cached
     file_image_tokens: dict[str, int] = field(default_factory=dict)  # exact image tokens of a unit, cached
     grounding_texts: list[tuple[str, str]] = field(default_factory=list)  # text behind each grounding image
