@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Optimization Framework — AI Cost Intelligence</title>
+<style>
+:root{--navy:#0d2b55;--navy-mid:#1a4a8a;--navy-soft:#d6e4f7;--blue:#1e88e5;--teal:#0f766e;--teal-lt:#ccfbf1;--green:#1b7a3e;--green-lt:#d6f0e0;--amber:#b45309;--amber-lt:#fef3c7;--red:#b91c1c;--red-lt:#fee2e2;--purple:#6d28d9;--purple-lt:#ede9fe;--ink:#1a2332;--grey-dk:#374151;--grey-md:#5b6675;--grey-lt:#f3f4f6;--bg:#f0f4f8;--border:#dde3ec}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px;scroll-behavior:smooth;scroll-padding-top:150px}
+body{font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.wrap{max-width:1140px;margin:0 auto;padding:0 20px}
+a{color:var(--navy-mid)}
+
+.banner{background:linear-gradient(135deg,#0d2b55 0%,#1a4a8a 55%,#0f766e 100%);color:#fff;padding:34px 0 26px}
+.banner h1{font-size:1.9rem;letter-spacing:-.4px;line-height:1.2}
+.banner p{color:rgba(255,255,255,.82);max-width:70ch;margin-top:8px}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.pill{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:3px 12px;font-size:.8rem}
+
+.stick{position:sticky;top:0;z-index:60;background:#fff;border-bottom:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.tabs{display:flex}
+.tab{flex:1;padding:12px 14px;border:0;background:none;border-bottom:3px solid transparent;font-weight:600;color:var(--grey-md);cursor:pointer}
+.tab:hover{background:var(--grey-lt)}
+.tab[aria-selected=true]{color:var(--navy);border-bottom-color:var(--blue)}
+.scen{background:var(--grey-lt);border-top:1px solid var(--border);font-size:.86rem}
+.scenin{display:flex;gap:10px 22px;flex-wrap:wrap;align-items:center;padding-top:7px;padding-bottom:7px}
+.scenin .lbl{color:var(--grey-md)}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:#fff}
+.seg button{padding:3px 13px;border:0;background:none;cursor:pointer}
+.seg button+button{border-left:1px solid var(--border)}
+.seg button[aria-pressed=true]{background:var(--teal);color:#fff}
+.scenname{font-weight:600;color:var(--navy)}
+
+.page{display:none;padding-bottom:40px}.page.on{display:block}
+.subnav{display:flex;gap:6px;flex-wrap:wrap;margin:16px 0 0}
+.subnav a{font-size:.82rem;text-decoration:none;border:1px solid var(--border);background:#fff;border-radius:999px;padding:3px 12px;color:var(--grey-dk)}
+.subnav a:hover{border-color:var(--blue);color:var(--navy)}
+.sec{padding:30px 0 6px}
+.sec>h2{font-size:1.32rem;color:var(--navy);line-height:1.3;margin-bottom:4px}
+.sub{color:var(--grey-md);max-width:78ch;margin-bottom:16px}
+h3{font-size:1rem;color:var(--navy);margin-bottom:6px}
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(310px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media(max-width:860px){.split{grid-template-columns:1fr}.tab{font-size:.85rem;padding:10px 6px}}
+.muted{color:var(--grey-md)}.small{font-size:.86rem}.tiny{font-size:.78rem}
+.note{border-left:4px solid var(--amber);background:var(--amber-lt);padding:9px 14px;border-radius:0 8px 8px 0;font-size:.86rem;margin:12px 0}
+.note.teal{border-color:var(--teal);background:var(--teal-lt);color:#0b4f4a}
+.note.blue{border-color:var(--blue);background:var(--navy-soft);color:var(--navy)}
+
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.chip{border:1px solid var(--border);background:#fff;border-radius:999px;padding:4px 12px;cursor:pointer;font-size:.86rem}
+.chip:hover{border-color:var(--blue)}
+.chip[aria-pressed=true],.chip[aria-selected=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.badge{display:inline-block;font-size:.74rem;border-radius:6px;padding:1px 8px;background:var(--grey-lt);color:var(--grey-dk);margin:0 4px 2px 0;white-space:nowrap}
+.badge.t{background:var(--teal-lt);color:var(--teal)}.badge.b{background:var(--navy-soft);color:var(--navy-mid)}
+.badge.a{background:var(--amber-lt);color:var(--amber)}.badge.r{background:var(--red-lt);color:var(--red)}
+.badge.g{background:var(--green-lt);color:var(--green)}.badge.p{background:var(--purple-lt);color:var(--purple)}
+
+table.tbl{width:100%;border-collapse:collapse;font-size:.88rem;background:#fff}
+.tbl th,.tbl td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+.tbl th{background:var(--grey-lt);color:var(--navy);font-weight:600}
+.tscroll{overflow-x:auto;border:1px solid var(--border);border-radius:12px}
+.tbl tr.dim td{opacity:.38}
+
+/* charts */
+.hb{display:grid;grid-template-columns:minmax(130px,235px) 1fr auto;gap:10px;align-items:center;margin:7px 0;font-size:.87rem}
+.track{position:relative;height:18px;background:var(--grey-lt);border-radius:9px;overflow:hidden}
+.fill{position:absolute;top:0;bottom:0;left:0;border-radius:9px;transition:width .35s,left .35s}
+.val{font-variant-numeric:tabular-nums;font-weight:600;min-width:64px;text-align:right}
+@media(max-width:640px){.hb{grid-template-columns:1fr auto}.hb .lbl{grid-column:1/-1}}
+svg.chart{width:100%;height:auto;display:block}
+svg.chart text{font-family:inherit;font-size:11px;fill:#5b6675}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.83rem;margin:4px 0}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+/* controls */
+.ctls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px 18px;margin:10px 0}
+.ctl{display:block;font-size:.83rem}.ctl span{display:flex;justify-content:space-between}
+.ctl input[type=range]{width:100%;accent-color:var(--teal)}
+.ctl input[type=number],.ctl select{width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:8px;font:inherit;background:#fff}
+.stat{background:var(--grey-lt);border-radius:10px;padding:10px 12px}
+.stat b{display:block;font-size:1.3rem;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1.25}
+.stat.good b{color:var(--green)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+
+/* selectable tiles */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+.tile{text-align:left;background:#fff;border:1px solid var(--border);border-radius:10px;padding:9px 12px;cursor:pointer;line-height:1.35}
+.tile:hover{border-color:var(--blue)}
+.tile[aria-pressed=true]{border-color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy);background:var(--navy-soft)}
+.tile.dim{opacity:.5}
+.tile small{display:block;color:var(--grey-md);font-size:.78rem}
+.detail{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-top:10px}
+.detail ul,.card ul{margin:6px 0 0 18px}
+.detail li,.card li{margin:2px 0}
+.strip{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.ph{border:1px solid var(--border);background:#fff;border-radius:10px;padding:7px 11px;cursor:pointer;font-size:.85rem;text-align:left}
+.ph.off{opacity:.3}
+.ph.sel{border-color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy);background:var(--navy-soft)}
+.ph .g{display:block;font-size:.72rem;color:var(--red)}
+.steps{list-style:none;margin:8px 0 0!important;counter-reset:s}
+.steps li{counter-increment:s;position:relative;padding:5px 0 5px 30px;margin:0}
+.steps li::before{content:counter(s);position:absolute;left:0;top:6px;width:21px;height:21px;border-radius:50%;background:var(--teal);color:#fff;font-size:.75rem;display:grid;place-items:center}
+.loop{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap}
+.loop .tile{flex:1;min-width:170px}
+.loop .arr{align-self:center;color:var(--grey-md);font-size:1.3rem}
+details.acc{background:#fff;border:1px solid var(--border);border-radius:10px;padding:0 14px;margin:6px 0}
+details.acc summary{cursor:pointer;padding:9px 0;font-weight:600;color:var(--navy)}
+details.acc>div{padding:0 0 10px}
+.tool{display:flex;flex-direction:column;gap:6px}
+.tool.rec{border-color:var(--teal);box-shadow:inset 0 0 0 1px var(--teal)}
+.tool.flash{animation:fl 1.6s}
+@keyframes fl{0%,60%{box-shadow:0 0 0 4px rgba(30,136,229,.45)}100%{box-shadow:none}}
+.tool h3{margin:0}
+.tool .row{font-size:.86rem}
+.tool .k{color:var(--grey-md)}
+.chk{display:flex;gap:8px;align-items:flex-start;padding:5px 0;font-size:.9rem;cursor:pointer}
+.chk input{margin-top:5px;accent-color:var(--teal)}
+.meter{height:12px;border-radius:6px;background:var(--grey-lt);overflow:hidden}
+.meter i{display:block;height:100%;transition:width .3s}
+
+/* tool stack lanes */
+.lanes{display:grid;gap:10px}
+.lane{display:grid;grid-template-columns:200px 1fr;gap:14px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 14px;align-items:start}
+.lane.empty{background:transparent;border-style:dashed}
+.lane-l b{display:block;color:var(--navy)}.lane-l span{font-size:.8rem;color:var(--grey-md);line-height:1.35;display:block}
+.lane.empty .lane-l{opacity:.6}
+.lane-r{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.lane-r .none{font-size:.84rem;color:var(--grey-md);align-self:center}
+.stk{text-align:left;background:var(--grey-lt);border:1px solid var(--border);border-left:4px solid var(--teal);border-radius:10px;padding:9px 12px;cursor:pointer;display:block;width:100%}
+.stk:hover{border-color:var(--blue);border-left-color:var(--blue)}
+.stk.optional{border-left-color:var(--blue)}.stk.later{border-left-color:var(--amber)}
+.stk b{display:block;line-height:1.3}.stk small{display:block;color:var(--grey-dk);font-size:.82rem;margin:2px 0 5px;line-height:1.4}
+.legend2{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:.82rem;color:var(--grey-md);margin:0 0 10px}
+.ostep{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:8px}
+.ostep .card{display:flex;gap:12px;align-items:flex-start;padding:12px 14px}
+.ostep .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center;font-size:.82rem;font-weight:600}
+#practiceList{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:900px){#practiceList{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){#practiceList{grid-template-columns:1fr}}
+.pcard{border-top:4px solid var(--teal)}
+.pcard h3{margin-bottom:4px}
+.pcard ul{margin:4px 0 0 18px;font-size:.9rem}
+.flaggrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));column-gap:28px}
+@media(max-width:700px){.lane{grid-template-columns:1fr}}
+footer{border-top:1px solid var(--border);padding:22px 0 40px;font-size:.82rem;color:var(--grey-md)}
+footer a{margin-right:12px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
+@media print{.stick{position:static}.page{display:block!important}.subnav{display:none}}
+</style>
+</head>
+<body>
+<header class="banner"><div class="wrap">
+  <h1>Token Optimization Framework</h1>
+  <p>How to get the same engineering and product outcomes for a fraction of the AI spend, with quality protected and every saving measurable.</p>
+  <div class="pills"><span class="pill">For executives and delivery leaders</span><span class="pill">Greenfield and brownfield</span><span class="pill">With and without AI assistants</span><span class="pill">Tool data as of 29 Sep 2026</span></div>
+</div></header>
+
+<div class="stick">
+  <div class="wrap"><div class="tabs" role="tablist" aria-label="Pages">
+    <button class="tab" role="tab" data-p="p1" aria-selected="true">1. AI Consumption Optimization</button>
+    <button class="tab" role="tab" data-p="p2" aria-selected="false">2. Token Optimization</button>
+  </div></div>
+  <div class="scen"><div class="wrap scenin">
+    <span class="lbl">Your situation:</span>
+    <span class="seg" id="segProj" role="group" aria-label="Project type"><button data-v="green" aria-pressed="true">Greenfield</button><button data-v="brown" aria-pressed="false">Brownfield</button></span>
+    <span class="seg" id="segAsst" role="group" aria-label="Assistant use"><button data-v="with" aria-pressed="true">With AI assistants</button><button data-v="without" aria-pressed="false">Without AI assistants</button></span>
+    <span class="scenname" id="scenName"></span>
+  </div></div>
+</div>
+
+<main class="wrap">
+
+<!-- ================= PAGE 1 ================= -->
+<div id="p1" class="page on" role="tabpanel">
+  <nav class="subnav" aria-label="Page 1 sections">
+    <a href="#why">Why cost multiplies</a><a href="#price">Not all tokens cost the same</a><a href="#framework">The framework</a><a href="#mech1">How assistants work</a><a href="#advisor1">Your strategy</a><a href="#catalog">Techniques</a><a href="#value">Business value and ROI</a><a href="#measure">Measurement</a><a href="#adopt">Adoption</a><a href="#trust">Risk and trust</a>
+  </nav>
+
+  <section class="sec" id="why">
+    <h2>AI cost does not grow in step with the value it creates</h2>
+    <p class="sub">A prototype that costs a few dollars a day can cost tens of thousands a month once hundreds of people use it or an autonomous agent is switched on. The reason is structural: every step of an AI agent re-sends everything that came before it. Move the levers to see how quickly the bill diverges, and what changes it.</p>
+    <div class="split">
+      <div class="card">
+        <h3>Where the money goes in one agent task</h3>
+        <p class="small muted">The framework's rule: do not optimize tokens first. Optimize unnecessary AI consumption first, then the tokens that remain.</p>
+        <div id="growthCtl"></div>
+      </div>
+      <div class="card"><div id="growthChart"></div><div id="growthStats"></div></div>
+    </div>
+    <div class="note">Illustrative model of input tokens only, with simplified caching. Output tokens, cache misses at phase changes and quality checks are not modeled. It shows the shape of the effect, not a forecast for your workload.</div>
+  </section>
+
+  <section class="sec" id="price">
+    <h2>Tokens are not priced equally</h2>
+    <p class="sub">Two facts change how leaders should read "tokens saved". Repeated text can be re-read at a fraction of the price, and the words the model writes or thinks cost several times more than the words it reads. Reducing volume matters, but arranging and limiting it matters more.</p>
+    <div class="split">
+      <div class="card"><h3>Relative price of one token (normal input = 1)</h3><div id="priceChart"></div><p class="tiny muted">Typical published multipliers; exact figures differ by provider and change over time, so the framework keeps prices as versioned configuration. Sources: Token Cost Calculator briefing, Token Optimizer MCP documentation.</p></div>
+      <div class="card"><h3>What this means for the business</h3><ul>
+        <li><b>Cache-friendly design pays.</b> Text that stays the same between calls can be re-read at about a tenth of the price.</li>
+        <li><b>Compression can backfire.</b> Rewriting text that was already cached turns cheap reads into full-price writes. Compress only the newest content.</li>
+        <li><b>Fewer steps beat cheaper steps.</b> An agent that finishes in 3 turns instead of 4 saves more than a small per-call discount.</li>
+        <li><b>Non-urgent work is half price.</b> Bulk and overnight jobs belong in the batch lane.</li>
+        <li><b>Thinking is billed as output.</b> Reasoning-heavy models can multiply cost 3 to 8 times unless effort is capped where it is not needed.</li></ul></div>
+    </div>
+  </section>
+
+  <section class="sec" id="framework">
+    <h2>The framework in one view</h2>
+    <p class="sub">Effort is spent in priority order: the earlier the step, the larger and cheaper the saving. Select a step to see the question it asks and the techniques behind it.</p>
+    <div class="split">
+      <div><h3>Optimization hierarchy</h3><div class="tiles" id="ladder" style="grid-template-columns:1fr 1fr"></div><div class="detail" id="ladderDetail"></div></div>
+      <div><h3>Plan, deliver, run: one loop</h3><div class="loop" id="loop"></div><div class="detail" id="loopDetail"></div>
+        <h3 style="margin-top:16px">Lifecycle: estimate plus eleven runtime stages</h3><div class="strip" id="life"></div><div class="detail" id="lifeDetail"></div></div>
+    </div>
+  </section>
+
+  <section class="sec" id="mech1">
+    <h2>How AI assistants work: coverage map and gaps</h2>
+    <p class="sub">Coding assistants such as Claude Code, Copilot, Cursor, Codex, Kiro and Antigravity are all a loop around a stateless model: assemble the context, call the model, run the tool it asks for, append the result, and call again with everything resent. Cost is therefore decided by what fills that context and how often it is resent. The map shows what this framework already covers for each mechanism; the cards show what is still missing.</p>
+    <div id="mechBody1"></div>
+  </section>
+
+  <section class="sec" id="advisor1">
+    <h2>Your strategy</h2>
+    <p class="sub">Pick your situation in the bar above. The recommended approach, the order to do it in, and how you will know it is working update instantly.</p>
+    <div id="adv1"></div>
+  </section>
+
+  <section class="sec" id="catalog">
+    <h2>Fourteen techniques, matched to the workload</h2>
+    <p class="sub">Not every technique applies everywhere. Choose the kind of workload and the table shows which techniques are primary, which are situational, and which do not apply.</p>
+    <div class="chips" id="wlChips" role="group" aria-label="Workload"></div>
+    <div class="tscroll"><table class="tbl" id="catTable"></table></div>
+    <p class="tiny muted" style="margin-top:6px">Primary = main technique for this workload. Situational = use when the conditions fit. Conditional techniques carry quality or safety risk and stay off until a gate is passed.</p>
+  </section>
+
+  <section class="sec" id="value">
+    <h2>Business value and return on investment</h2>
+    <p class="sub">Value shows up in cost, productivity, speed, control and scale, and each has a named measure so it can be shown to a sponsor. The targets are hypotheses to be proven in a pilot, not promises.</p>
+    <div class="grid g3" id="valueCards"></div>
+    <h3 style="margin-top:20px">ROI estimator</h3>
+    <p class="small muted">The starting figures are examples. Replace them with the client's own numbers.</p>
+    <div class="split"><div class="card"><div id="roiCtl"></div></div><div class="card"><div id="roiOut"></div></div></div>
+  </section>
+
+  <section class="sec" id="measure">
+    <h2>How we prove it: measurement</h2>
+    <p class="sub">A saving without a quality check is a claim, not a result. One event schema feeds six families of indicators.</p>
+    <div class="chips" id="kpiTabs" role="tablist"></div><div class="detail" id="kpiBody"></div>
+  </section>
+
+  <section class="sec" id="adopt">
+    <h2>Adoption: maturity, waves, pilot and roadmap</h2>
+    <p class="sub">Maturity is assessed per workload or team. A team can be advanced with coding assistants and still be at the start for a customer-facing app.</p>
+    <h3>Maturity levels</h3><div class="strip" id="matTabs"></div><div class="detail" id="matBody"></div>
+    <div class="split" style="margin-top:16px">
+      <div><h3>Rollout waves (brownfield)</h3><div id="waves"></div></div>
+      <div><h3>Six-week pilot</h3><div id="pilot"></div></div>
+    </div>
+    <h3 style="margin-top:16px">Indicative roadmap</h3><div class="card"><div id="roadmap"></div><p class="tiny muted">Bars show the midpoint of each indicative duration for one organization with a small platform team. Each phase ends on measurable exit criteria, not a date.</p></div>
+  </section>
+
+  <section class="sec" id="trust">
+    <h2>Risk and trust</h2>
+    <div class="grid g3" id="trustCards"></div>
+  </section>
+</div>
+
+<!-- ================= PAGE 2 ================= -->
+<div id="p2" class="page" role="tabpanel">
+  <nav class="subnav" aria-label="Page 2 sections">
+    <a href="#basics">The basics</a><a href="#burn">Where tokens burn</a><a href="#mech2">How assistants work</a><a href="#tools">Tools and frameworks</a><a href="#bench">Reported results</a><a href="#stack">Stack checker</a><a href="#advisor2">Your tool stack</a><a href="#adlc">ADLC workflows</a><a href="#calc">Token Cost Calculator</a><a href="#practices">Practices and red flags</a>
+  </nav>
+
+  <section class="sec" id="basics">
+    <h2>The basics: why cost multiplies and what tokens cost</h2>
+    <p class="sub">Every step of an AI agent re-sends everything that came before it, so cost grows faster than the number of steps. Two facts then decide the bill: repeated text can be re-read at a fraction of the price, and the words the model writes or thinks cost several times more than the words it reads.</p>
+    <div class="split">
+      <div class="card">
+        <h3>Where the money goes in one agent task</h3>
+        <p class="small muted">The framework's rule: do not optimize tokens first. Optimize unnecessary AI consumption first, then the tokens that remain.</p>
+        <div id="growthChart2"></div><div id="growthStats2"></div>
+        <p class="tiny muted">Shown with example levers: 80% cache hit rate, 40% less tool output, 20% fewer steps. Page 1 lets you move them.</p>
+      </div>
+      <div class="card"><h3>Relative price of one token (normal input = 1)</h3><div id="priceChart2"></div><ul>
+        <li><b>Cache-friendly design pays.</b> Text that stays the same between calls can be re-read at about a tenth of the price.</li>
+        <li><b>Compression can backfire.</b> Rewriting text that was already cached turns cheap reads into full-price writes. Compress only the newest content.</li>
+        <li><b>Fewer steps beat cheaper steps.</b> An agent that finishes in 3 turns instead of 4 saves more than a small per-call discount.</li>
+        <li><b>Non-urgent work is half price.</b> Bulk and overnight jobs belong in the batch lane.</li>
+        <li><b>Thinking is billed as output.</b> Reasoning-heavy models can multiply cost 3 to 8 times unless effort is capped where it is not needed.</li></ul></div>
+    </div>
+    <div class="note">Illustrative model of input tokens only, with simplified caching. It shows the shape of the effect, not a forecast for your workload.</div>
+    <div class="split" style="margin-top:16px">
+      <div><h3>Optimization hierarchy</h3><div class="tiles" id="ladder2" style="grid-template-columns:1fr 1fr"></div><div class="detail" id="ladderDetail2"></div></div>
+      <div><h3>How we prove it: measurement</h3><p class="small muted">A saving without a quality check is a claim, not a result.</p><div class="chips" id="kpiTabs2" role="tablist"></div><div class="detail" id="kpiBody2"></div></div>
+    </div>
+  </section>
+
+  <section class="sec" id="burn">
+    <h2>Where tokens burn</h2>
+    <p class="sub">Twelve places account for most avoidable spend. Items that matter most for your situation are highlighted. Select one to see what happens and what fixes it.</p>
+    <div class="tiles" id="burnTiles"></div><div class="detail" id="burnDetail"></div>
+  </section>
+
+  <section class="sec" id="mech2">
+    <h2>How AI assistants work: coverage map and gaps</h2>
+    <p class="sub">Coding assistants such as Claude Code, Copilot, Cursor, Codex, Kiro and Antigravity are all a loop around a stateless model: assemble the context, call the model, run the tool it asks for, append the result, and call again with everything resent. Cost is therefore decided by what fills that context and how often it is resent. The map shows what this framework already covers for each mechanism; the cards show what is still missing.</p>
+    <div id="mechBody2"></div>
+  </section>
+
+  <section class="sec" id="tools">
+    <h2>Tools and frameworks</h2>
+    <p class="sub">Every tool sits behind a replaceable interface, so the organization is never locked in. Tools recommended for your situation carry a green outline.</p>
+    <div class="chips" id="layerChips" role="group" aria-label="Layer"></div>
+    <div class="grid g2" id="toolGrid"></div>
+  </section>
+
+  <section class="sec" id="bench">
+    <h2>What the tools report</h2>
+    <p class="sub">Public figures from each project's own documentation, gathered 29 Sep 2026. They are useful for orientation and are not a substitute for measuring your own workloads.</p>
+    <div class="chips" id="benchTabs" role="tablist"></div><div class="card" id="benchBody"></div>
+  </section>
+
+  <section class="sec" id="stack">
+    <h2>Stack checker</h2>
+    <p class="sub">Tick the tools you are considering. The checker shows which layers are covered and flags combinations that overlap or need care.</p>
+    <div class="split"><div class="card" id="stackPick"></div><div class="card" id="stackOut"></div></div>
+  </section>
+
+  <section class="sec" id="advisor2">
+    <h2>Your tool stack</h2>
+    <p class="sub">The recommended stack and first steps for the situation selected above.</p>
+    <div id="adv2"></div>
+  </section>
+
+  <section class="sec" id="adlc">
+    <h2>ADLC: a spec-driven, gated way of working with AI assistants</h2>
+    <p class="sub">ADLC is the structured workflow behind the cost results: no implementation before an approved spec, one phase at a time, security gates that cannot be skipped, and a token budget per phase. It is files-based, so it works with Kiro (the worked example below), Copilot, Claude Code, Cursor and other assistants.</p>
+    <div class="chips" id="adlcTabs" role="tablist"></div><div id="adlcBody"></div>
+  </section>
+
+  <section class="sec" id="calc">
+    <h2>Token Cost Calculator: estimate before building</h2>
+    <p class="sub">Nitor's planning tool turns a project description into a defensible budget range in minutes, and feeds the same price data as the gateway.</p>
+    <div id="calcBody"></div>
+  </section>
+
+  <section class="sec" id="practices">
+    <h2>Practices and red flags</h2>
+    <h3>Nine practice areas</h3>
+    <div class="grid g3" id="practiceList"></div>
+    <div class="card" style="margin-top:16px"><h3>Are we overspending? Tick what is true today</h3><div id="flags"></div></div>
+  </section>
+</div>
+
+</main>
+
+<footer><div class="wrap">
+  <p><b>Reading the numbers.</b> Reduction figures for Headroom, Token Optimizer MCP, RTK, code-review-graph and Graphify are reported by their maintainers on their own tests. ADLC figures are from Nitor's internal adoption and are to be verified in the pilot. Prices and versions change quickly; re-check before quoting.</p>
+  <p style="margin-top:8px">Sources: <a href="https://github.com/ooples/token-optimizer-mcp" target="_blank" rel="noopener">Token Optimizer MCP</a><a href="https://github.com/headroomlabs-ai/headroom/releases" target="_blank" rel="noopener">Headroom releases</a><a href="https://github.com/tirth8205/code-review-graph" target="_blank" rel="noopener">code-review-graph</a><a href="https://github.com/safishamsi/graphify" target="_blank" rel="noopener">Graphify</a></p>
+  <p style="margin-top:8px">Nitor Infotech · AI and GenAI Practice</p>
+</div></footer>
+<script>
+/* ---------- CONTENT DATA (all figures traced to project documents or public tool docs; vendor figures are labeled) ---------- */
+const SCEN = {
+ 'green-with': {
+  name:'Greenfield with AI assistants',
+  strategy:'Build cost control into the way the team works from the first sprint, so savings are structural instead of retrofitted.',
+  steps:['Estimate the AI budget before build with the Token Cost Calculator.','Put a gateway and cost tags in place in sprint 1 (LiteLLM), where the assistants can be routed.','Adopt ADLC: approved spec first, gated phases, a token budget per phase.','Lay out prompts and context files stable-first so provider caching works, and pick a model tier per phase.','Keep code modular and documented so the graph stays small, then add a code graph once code exists.','Pilot one tool-output reducer (Headroom, Token Optimizer MCP or RTK) and measure it against the baseline.'],
+  stack:[['calc','Sets the budget range before work starts','core'],['litellm','One place to meter, cap and route spend','core'],['adlc','Spec-first gated delivery with security gates','core'],['crg','Add once there is code to map','later'],['headroom','Optional: trims large tool output; benchmark first','optional'],['ooples','Optional alternative: blocks wasteful reads and shows savings','optional']],
+  tcs:['TC-14','TC-01','TC-09','TC-08','TC-12','TC-05'],
+  exit:['Baseline recorded for the first 10 to 20 tasks','At least 90% of spend tagged to project and workflow','Every gate decision recorded'],
+  watch:'Do not skip the baseline. Without it, savings cannot be shown to a sponsor later.'},
+ 'green-without': {
+  name:'Greenfield without AI assistants (AI inside the product)',
+  strategy:'Design the application so the model never needs much context: decide what is deterministic, and send the rest to the smallest capable model.',
+  steps:['Use the Calculator and recommendation engine to shortlist models and set a budget.','Route every model call through a gateway with tags, budgets and limits defined as configuration.','Decide what code, rules or lookups can do, and call the model only for genuine ambiguity.','Version prompts, order them stable-first, and set output caps per task type.','Design retrieval to send a few ranked passages, not whole documents.','Use the batch lane for non-urgent work, and add step and retry caps to any agent loop.'],
+  stack:[['calc','Model shortlist and budget','core'],['litellm','Routing, budgets and spend tracking from day one','core'],['headroom','Library on tool results and retrieved chunks in agent-style apps','optional'],['adlc','Optional for the team building it, if they use assistants','optional']],
+  tcs:['TC-01','TC-04','TC-08','TC-09','TC-10','TC-13','TC-02'],
+  exit:['Cost per successful outcome tracked from the first release','Evaluation set of 100 to 200 real cases in place','Budget alerts live at task, project and user level'],
+  watch:'Semantic caching only for repetitive, low-personalization workloads, and always scoped per tenant.'},
+ 'brown-with': {
+  name:'Brownfield with AI assistants',
+  strategy:'Measure first, then narrow what the assistant reads. Sending a legacy repository to the model is the costliest possible starting point.',
+  steps:['Capture a baseline: 10 to 20 recent comparable tasks with tokens, cost and rework.','Scan the repository and build the code graph so the assistant reads only affected files.','Run ADLC context setup so phases reference files instead of restating them.','Benchmark four setups on one workload: no reducer, RTK only, Headroom (or Token Optimizer MCP) only, and both.','Add memory and compaction at phase gates. Use the ADLC model guide as manual routing until a gateway is possible.','Roll out in waves: visibility, quick wins, context, control.'],
+  stack:[['crg','Structural map so only affected files are read','core'],['graphify','Alternative that also maps documents and images','optional'],['adlc','Gated Developer and QA workflows','core'],['headroom','Compresses large tool output','optional'],['ooples','Read guard, diffs on re-read, waste audit','optional'],['rtk','Filters command-line output at source','optional'],['litellm','Gateway once assistants can be routed','later']],
+  tcs:['TC-03','TC-06','TC-07','TC-14','TC-12','TC-05'],
+  exit:['Discovery tokens per task trending down','Quality within the agreed margin (2 points or less)','Gate compliance at 95% or more'],
+  watch:'Do not chain compressors automatically. Overlapping tools can add latency with no extra saving.'},
+ 'brown-without': {
+  name:'Brownfield without AI assistants (existing app, or no AI yet)',
+  strategy:'If the application already calls models, make spend visible and cut the obvious waste. If it has no AI yet, make it AI-ready so the first feature is cheap.',
+  steps:['Existing model calls: route them through a gateway, tag them and record a baseline.','Turn on prefix caching, output caps and reasoning limits (the quick wins).','Compress large tool results and logs before they enter prompts (Headroom library or proxy).','Tune retrieval: fewer, better-ranked chunks, with quality measured alongside tokens.','Add routing with a cheap-first cascade, and move bulk work to batch.','No AI yet: run the readiness assessment (8 dimensions), map the architecture, add a light graph and draft policy.'],
+  stack:[['litellm','Visibility and budgets first','core'],['calc','Estimate new AI features before committing','optional'],['headroom','Library or proxy on large tool output','core'],['crg','Architecture and dependency map for AI-readiness','optional']],
+  tcs:['TC-01','TC-08','TC-06','TC-04','TC-09','TC-10'],
+  exit:['At least 90% of spend attributed','Baseline reviewed with the sponsor','Readiness score per dimension (if no AI yet)'],
+  watch:'Test quality alongside cost. A narrower context that misses the answer is not a saving.'}
+};
+
+const TOOLS = [
+ {id:'crg',name:'code-review-graph',layer:'read',ver:'v2.3.6',lic:'Open source',fit:['green-with','brown-with','brown-without'],
+  what:'Builds a local map of the code (who calls what, what tests cover it) and serves it to the assistant, so it reads the few files a change touches instead of the whole repository.',
+  value:'Smaller prompts, faster answers, and code that never leaves the machine.',effort:'Low to medium',when:'Build time',
+  rep:'Reports about 63 times fewer tokens per question at the median (35 to 358 times) versus reading whole corpora. Earlier versions reported about 8 times on code review tasks; methods differ.',
+  watch:'Figures come from the maintainers\' benchmark. Dynamic wiring and configuration need explicit modelling, and the graph must be refreshed. Use the official repository; look-alike forks exist.',
+  href:'https://github.com/tirth8205/code-review-graph'},
+ {id:'graphify',name:'Graphify',layer:'read',ver:'active project',lic:'MIT',fit:['brown-with','green-with'],
+  what:'Turns a folder of code, documents, papers and images into a queryable knowledge graph that assistants can navigate by structure.',
+  value:'Covers documents and diagrams as well as code, which helps when knowledge is scattered.',effort:'Low to medium',when:'Build time',
+  rep:'Reports 71.5 times fewer tokens per query (about 123,000 down to 1,700) on a 52-file mixed corpus. Token reduction grows with corpus size.',
+  watch:'The first build costs tokens because a model reads the documents. The benchmark corpus is small; test on your own repository.',
+  href:'https://github.com/safishamsi/graphify'},
+ {id:'ooples',name:'Token Optimizer MCP (ooples)',layer:'guard',ver:'v7.3.0, 23 Sep 2026',lic:'MIT',fit:['green-with','brown-with'],
+  what:'Stops wasteful reads before they happen, returns only the change when a file is read again, keeps a per-project memory of findings and dead ends, and shows a ranked list of where tokens go. Works with 16 assistant clients.',
+  value:'Prevents waste and shows the savings, with the dashboard evidence leaders ask for.',effort:'Low (plugin install)',when:'Run time',
+  rep:'Headline 60 to 90 percent context reduction. On 16 real tasks it reports median cost of 0.93 times the control, and 0.67 times the turns, with the same quality score.',
+  watch:'Vendor-run tests, and its own notes say superiority over Headroom was not established. Default mode assists rather than blocks. An optional local proxy writes temporary files, so treat that store as data. It overlaps with Headroom: choose one compressor per environment.',
+  href:'https://github.com/ooples/token-optimizer-mcp'},
+ {id:'headroom',name:'Headroom',layer:'send',ver:'v0.39.1, 26 Sep 2026',lic:'Apache 2.0',fit:['green-with','green-without','brown-with','brown-without'],
+  what:'Compresses tool output, logs, files and retrieved passages before they reach the model, and keeps the originals so the model can ask for them back. Runs as a proxy, a library or an MCP server, or wraps an assistant.',
+  value:'Big reductions on machine-generated text such as JSON and logs, with data staying local.',effort:'Low (proxy) to medium (library)',when:'Run time',
+  rep:'Now describes about 20 percent fewer tokens for coding agents and 60 to 95 percent for JSON. Offers a cache mode that protects provider caching, and a token mode that compresses harder.',
+  watch:'Little gain on small or unique content. Adds some latency. Use cache mode when prefix caching matters, and protect the store of originals. The project has moved to the headroomlabs-ai organisation.',
+  href:'https://github.com/headroomlabs-ai/headroom/releases'},
+ {id:'rtk',name:'RTK (command output filter)',layer:'send',ver:'project docs',lic:'Open source',fit:['green-with','brown-with'],
+  what:'Rewrites shell commands so test, build, git and log output reaches the assistant in compact form, and saves the full output when something fails.',
+  value:'Cuts the largest source of noise in coding and QA sessions.',effort:'Low',when:'Run time',
+  rep:'Project reports 60 to 90 percent less command output. That is a reduction in output tokens, not in the bill.',
+  watch:'Covers shell commands only. Do not chain automatically with a proxy compressor. Another unrelated project is also called rtk; verify the right one is installed.',href:''},
+ {id:'litellm',name:'LiteLLM gateway',layer:'ctl',ver:'open source',lic:'Open source',fit:['green-with','green-without','brown-with','brown-without'],
+  what:'One gateway in front of every model provider. Issues scoped keys, sets hard budgets, routes each request to the smallest capable model, and shows spend by team, project and model.',
+  value:'Spend is visible and capped while it happens, not discovered on the invoice.',effort:'Medium',when:'Run time',
+  rep:'Its price file is also a primary source for the Token Cost Calculator, so estimates and actuals share one price base.',
+  watch:'Operating overhead, and not every assistant can be routed through it yet. Until then, ADLC\'s model guide acts as manual routing.',href:''},
+ {id:'calc',name:'Token Cost Calculator',layer:'plan',ver:'Nitor internal',lic:'Internal',fit:['green-with','green-without','brown-without'],
+  what:'A 20-question, five-minute questionnaire feeds a recommendation engine (350+ models, 22 providers) and a cost UI. Shows caching, batch and reasoning effects automatically.',
+  value:'A defensible budget range in minutes instead of weeks, before any code exists.',effort:'Low',when:'Before build',
+  rep:'About plus or minus 10 percent accuracy at steady state, according to the Nitor briefing.',
+  watch:'Estimates are recalibrated from real spend; capture actuals through the gateway so each estimate improves.',href:''},
+ {id:'adlc',name:'ADLC (Developer and QA workflows)',layer:'plan',ver:'Nitor workflow, v1.3 Kiro reference',lic:'Internal',fit:['green-with','brown-with'],
+  what:'Spec-driven, gated delivery for assistants: approved spec first, one phase at a time, security gates, a token budget per phase, and memory that carries across sessions.',
+  value:'Less rework and repeated explanation, and a recorded approval trail.',effort:'Medium (team habit change)',when:'Build time',
+  rep:'Internal adoption reports roughly 40 to 50 percent lower token use on both Developer and QA sides. The framework treats this as unverified until baselines are compared in the pilot.',
+  watch:'Gates are enforced by convention and approval, so measure compliance. Very small tasks should use a reduced gate set, not none.',href:''},
+ {id:'alt',name:'BMAD and Spec-kit',layer:'plan',ver:'alternatives',lic:'Open source',fit:['green-with','brown-with'],
+  what:'Other agentic delivery methods in the same category as ADLC. Spec-kit moves from constitution to specify, plan, tasks, implement and converge, each phase producing a document the next one references.',
+  value:'Useful where a team already uses one of them; the framework treats workflow as a replaceable module.',effort:'Medium',when:'Build time',
+  rep:'No reduction figures are claimed here.',watch:'Avoid running two methodologies on the same repository.',href:''}
+];
+const LAYERS={read:'Read less',send:'Send less',guard:'Prevent and measure',ctl:'Control and route',plan:'Plan and deliver'};
+
+const BURN = [
+ {id:'hist',n:'Conversation history re-sent every turn',who:'both',what:'Each step carries the whole conversation so far, so cost grows faster than the work. Token Optimizer MCP reports history is about 65 percent of a live request.',fix:'Prefix caching, compaction at phase gates, fresh sessions between phases, memory instead of history.',tcs:['TC-01','TC-12','TC-05'],tools:['ooples','headroom']},
+ {id:'schema',n:'Tool and MCP definitions',who:'both',what:'Every connected tool adds its description to every request, before any work starts. Many servers can consume a large share of the window.',fix:'Load only the tools a phase needs, trim descriptions, remove unused servers, load one agent at a time.',tcs:['TC-11'],tools:['adlc']},
+ {id:'out',n:'Large tool, command and log output',who:'both',what:'Test runs, build logs, JSON payloads and search results enter the context unfiltered.',fix:'Filter commands at source, compress results before they reach the model, keep originals retrievable.',tcs:['TC-06','TC-07'],tools:['rtk','headroom','ooples']},
+ {id:'reads',n:'Whole-file and repeated reads',who:'assistant',what:'Assistants read whole files or scan repositories, and read the same file again in the same session.',fix:'Graph-based selection, diff-only re-reads, targeted search, and reference by path instead of pasting.',tcs:['TC-03'],tools:['crg','graphify','ooples']},
+ {id:'output',n:'Output and reasoning tokens',who:'both',what:'Verbose answers and unbounded thinking are billed at several times the input rate; reasoning can multiply cost 3 to 8 times.',fix:'Output caps per task type, diffs instead of full rewrites, reasoning effort set per phase.',tcs:['TC-08'],tools:['litellm','calc']},
+ {id:'loops',n:'Retries and agent loops',who:'both',what:'Loops and retries multiply every other cost, and silent retry storms are behind most surprise invoices.',fix:'Step, retry and token caps, stop on repeated identical calls, escalate to a human at the cap.',tcs:['TC-13'],tools:['adlc']},
+ {id:'rework',n:'Rework from unclear requirements',who:'assistant',what:'Code built on a requirement nobody confirmed, or a ticket too thin to implement, is paid for twice.',fix:'Approved spec before implementation, requirement gap check, gates where rework is most expensive.',tcs:['TC-14'],tools:['adlc']},
+ {id:'model',n:'Wrong model for the task',who:'both',what:'A frontier model handles classification, extraction or summaries that a smaller model does as well.',fix:'Route by task shape, cheap-first cascade with escalation on failure, revisit choices on a schedule.',tcs:['TC-09'],tools:['litellm','calc']},
+ {id:'img',n:'Images and screenshots',who:'assistant',what:'An image costs roughly width times height divided by 750 tokens, and is re-sent as history on every later turn.',fix:'Per-phase image budget, reuse earlier analysis through memory, collapse repeated frames.',tcs:['TC-05','TC-06'],tools:['ooples']},
+ {id:'sync',n:'Real-time price for non-urgent work',who:'app',what:'Bulk generation, classification and nightly jobs pay the interactive price.',fix:'Batch and async lane at roughly half price where providers offer it.',tcs:['TC-10'],tools:['litellm']},
+ {id:'rag',n:'Oversized or poorly ranked retrieval',who:'app',what:'Too many chunks, no re-ranking, whole documents loaded when a paragraph would do.',fix:'Ranked short lists, re-rank a wider set, expand to the parent only on demand, cache embeddings.',tcs:['TC-04'],tools:['headroom']},
+ {id:'blind',n:'No budgets and no visibility',who:'both',what:'Nobody sees cost per task, team or workflow until the invoice arrives, so nothing can be improved or defended.',fix:'One gateway, mandatory tags, budgets at task, user and project level, baselines before any change.',tcs:['TC-09'],tools:['litellm','calc']}
+];
+
+const TC = [
+ ['TC-01','Prefix prompt caching','Tier 1','Pay about a tenth of the price for text that repeats between calls.','PPPPPP'],
+ ['TC-02','Result and semantic caching','Conditional','Skip the call entirely for repeat questions. Only where safe.','NCCPNC'],
+ ['TC-03','Dependency-graph context selection','Tier 1','Read the relevant few files, not the whole repository.','PPCNCN'],
+ ['TC-04','RAG retrieval optimization','Tier 1 (RAG apps)','Send the best few passages, not whole documents.','CNPCCC'],
+ ['TC-05','Three-tier memory','Tier 2','Do not re-solve what was already solved.','PPCPPN'],
+ ['TC-06','Context and tool-output compression','Tier 1','Shrink logs, JSON and search results before they reach the model.','PPPCPC'],
+ ['TC-07','CLI output filtering','Tier 2','Compact test, build and git output at the source.','PPNNCN'],
+ ['TC-08','Output and reasoning control','Tier 1','Cap verbosity and thinking effort, which are billed at higher rates.','PPPPPP'],
+ ['TC-09','Model routing and cascading','Tier 1','Use the smallest model that does the job.','PPPPPP'],
+ ['TC-10','Batch and async lane','Tier 2','Half price for work that can wait.','NCPNCP'],
+ ['TC-11','Tool and MCP schema pruning','Tier 2','Stop paying for tools nobody uses.','CCNNPN'],
+ ['TC-12','Conversation compaction','Tier 2','Summarize old history at natural breaks.','PPCPPN'],
+ ['TC-13','Agent loop and step guards','Tier 1 (agents)','Stop runaway loops before the invoice.','PPNNPC'],
+ ['TC-14','Spec-driven, gated workflow (ADLC)','Tier 1 (assistants)','Approve the spec once; avoid expensive rework.','PPNNCN']
+];
+const WL=['Coding assistant','QA and test automation','RAG and documents','Chat and support apps','Agentic apps','Batch and back-office'];
+
+const LADDER=[
+ ['Avoid','Can the AI call be replaced by deterministic logic?','Up to 100% of the call','A lookup, rule, regular expression or existing test does the job.','Decision engine, deterministic-first'],
+ ['Reduce','Can steps, tool calls and retries be cut?','High, and multiplicative for agents','Spec approval before code; step and retry caps; fewer turns.','TC-13, TC-14'],
+ ['Reuse','Has this already been answered or decided?','Up to 100% of the call on a hit','Task memory, earlier analyses, cached results.','TC-05, TC-02'],
+ ['Select','What is the least context and the smallest model that suffices?','High','Graph-selected files, ranked passages, tier per task.','TC-03, TC-04, TC-09'],
+ ['Compress','Can what remains be shown in fewer tokens?','Moderate, depends on content','Filter command output, compress logs and JSON, prune tool lists.','TC-06, TC-07, TC-11'],
+ ['Cache','Can stable parts be re-read cheaply?','High on the cached part','Stable-first prompt layout with a cache breakpoint.','TC-01'],
+ ['Route','Can a cheaper lane or tier serve it?','Moderate to high on routed traffic','Cheap-first cascade, batch lane for non-urgent work.','TC-09, TC-10'],
+ ['Evaluate and learn','Did quality hold, and what did it cost?','Sustains all of the above','Paired baseline comparisons, monthly review, updated rules.','Measurement and audit']
+];
+const LIFE=[['0 Estimate','What will this cost and what should we plan to optimize?','Token Cost Calculator, recommendation engine','Estimate accuracy'],['1 Decide','Can AI be avoided?','Decision and policy engine','AI-avoidance rate'],['2 Discover','What is the task and where does it touch the system?','Knowledge graph, workflow engine','Discovery tokens per task'],['3 Reuse','Have we done this already?','Task memory, result cache','Reuse rate'],['4 Select context','What is the minimum context that is enough?','Context manager, graph, retrieval','Context size (p95)'],['5 Select model','What is the smallest capable model?','Model router','Routing accuracy'],['6 Compress','Can the needed content be smaller?','Headroom, RTK, schema pruning','Compression ratio'],['7 Cache','Can stable parts be reused?','Prefix and semantic cache, gateway','Prefix cache hit rate'],['8 Execute','Can the task finish in fewer steps?','Workflow engine, step guards','Agent iterations'],['9 Retrieve','Is more detail really needed?','Reversible compression, retrieval','Retrieval rate'],['10 Evaluate','Did quality hold, and what did it cost?','Evaluation engine, observability','Quality delta'],['11 Learn','What should change next time?','Analytics, policy, memory','Savings realization']];
+const LOOP=[['Plan','Token Cost Calculator','Estimates stage-wise cost and picks models before any code exists. The estimate becomes the budget set in the gateway.'],['Deliver','ADLC','Gated Developer and QA workflows deliver within that budget, with fewer wasted calls and less rework.'],['Run','LiteLLM gateway','Routes, caps and meters every call. Actual spend flows back and recalibrates the next estimate.']];
+
+const VALUE=[
+ ['Cost reduction','Net savings against a baseline that has been replayed and verified.','Target: 30 to 60 percent lower cost per successful outcome on suitable workloads (a hypothesis for the pilot).','Cost per successful task, net savings, savings realization'],
+ ['Productivity','Less rework and less time spent re-explaining context to the assistant.','Measured as throughput or time per unit of work at equal quality.','Cost per approved feature, rework rate'],
+ ['Speed','Smaller prompts and fewer turns finish sooner.','Measured as end-to-end time to completion.','Latency, turns per task'],
+ ['Predictable spend','Budgets at task, user and project level, with forecasts.','Target: forecast within 15 percent per project per month.','Budget compliance, forecast variance'],
+ ['Governance and audit','Every saving is reproducible from the event log, and every gate decision is recorded.','Target: at least 95 percent of spend attributed to project, workflow and task.','Attribution coverage, gate compliance'],
+ ['Scale','Cost per user or unit stays flat as adoption grows.','Lets AI move from a pilot to the whole organization without a budget shock.','Cost per active user']
+];
+const KPI={
+ Cost:[['Cost per successful task','What one accepted outcome costs, the headline measure.'],['Forecast variance','Target within 15 percent per project per month.'],['Savings realization','Share of projected savings actually achieved. Target 0.8 or higher at the top maturity level.'],['Estimate accuracy','How close the Calculator was to actual spend. Target within 15 percent.']],
+ Consumption:[['Context size (p95)','How large the biggest prompts get.'],['Discovery tokens per task','What the assistant spends just finding its way around.'],['Tool-output share','How much of the input is tool and command output.']],
+ Efficiency:[['Prefix cache hit rate','How much repeated text is re-read cheaply.'],['Compression ratio and retrieval rate','How much is removed, and how often the model has to ask for it back.'],['Agent iterations and retries','Turns and retries per task, which often explain a surprise 10 times bill.'],['AI-avoidance and reuse rate','Calls avoided or answered from memory.']],
+ Quality:[['Task success','Did the outcome work?'],['Quality delta','Difference from baseline. Default non-inferiority margin: 2 points.'],['Retrieval relevance and healing success','Relevant context found, and failing tests fixed within their retry cap.']],
+ Governance:[['Attribution coverage','At least 95 percent of spend tagged to project, workflow and task.'],['Replay-verified savings','Share of claimed savings that can be reproduced from the record. 75 percent at level 2, 90 percent at level 4.'],['Baseline coverage','Baselines exist for the top workloads before changes are made.']],
+ Workflow:[['Gate compliance','Approvals recorded before each next phase. Target 95 percent or more.'],['Cost per phase and per feature','All tokens and cost tagged to phase and feature.'],['Prompt payload versus total context','ADLC budgets the prompt; the framework also tracks total input.']]
+};
+const MATURITY=[
+ ['0 AI Ready','Checklists, best practices, architecture guidance, readiness assessment, a manual logging kit.','Readiness score and a manual baseline sample.','Readiness threshold met and baseline template in use.'],
+ ['1 AI Aware','Token and model tracking, cost visibility, usage dashboards, mandatory tags.','At least 90 percent of spend tagged; baselines for top workloads.','Baselines captured and reviewed.'],
+ ['2 AI Optimized','Context compression, prefix caching, gateway budgets, routing, output control.','Cache hit rate in band; cost per task improving; quality within margin.','Savings verified by replay (75 percent or more).'],
+ ['3 AI Assisted','Assistants integrated with workflows, knowledge graph, memory, ADLC Developer and QA workflows.','Context and discovery tokens down; gate compliance at 95 percent or more.','Workflows run with guard and budget coverage.'],
+ ['4 AI Native','Agentic workflows, dynamic routing, cost governance, continuous evaluation.','Savings realization 0.8 or more; estimates within 15 percent.','Continuous improvement cycle operating (90 percent replay-verified).']
+];
+const WAVES=[['Visibility','Route through a gateway, tag, capture baselines.','At least 90 percent of spend tagged, baseline recorded'],['Quick wins','Prefix layout and caching, output caps, CLI filtering, tool pruning.','Cache hits up, tool output down, quality flat'],['Context','Graph selection, compression, compaction, memory.','Context and discovery tokens down, relevance stable'],['Control','Budgets, routing and cascade, batch lane, rules in the policy engine.','Budget compliance in band']];
+const PILOT=[['Week 0','Set up the gateway, tags, telemetry and evaluation sets; agree the quality margin and data classes.'],['Weeks 1 to 2','Capture baselines on each workload and record tasks for replay.'],['Weeks 3 to 5','Enable techniques one at a time in priority order; run paired tests, including the four-way compressor comparison.'],['Week 6','Replay-verify the claims, run an audit dry run, and give a go or no-go per technique.']];
+const ROAD=[['1 Foundation',4,6,'Gateway, tags, telemetry, baselines'],['2 Context optimization',4,6,'Prompt layout, caching, output caps, filtering'],['3 Cost governance',4,6,'Budgets, routing policy, batch lane, alerts'],['4 Workflow optimization',6,8,'Workflow modules, loop guards, ADLC rollout'],['5 Knowledge intelligence',6,10,'Graph, retrieval, memory'],['6 Advanced routing',4,6,'Cascades, per-tier evaluation']];
+const TRUST=[
+ ['Quality is protected','Every saving is paired with a quality measure and a non-inferiority margin (default 2 points). A cheaper answer that is worse is not a saving.'],
+ ['Optimizers fail safe','If a compressor, cache or router fails, the request falls back to the unoptimized path. Cost tools never make the product less reliable. Each has a kill switch.'],
+ ['Claims are evidence-based','Vendor figures are labeled as reported. Savings count only when a baseline, a quality verdict and a replayable record exist.'],
+ ['Data stays inside the boundary','Compressors, caches and graphs run locally. Caches are scoped per tenant and sensitivity, and stores of originals are encrypted with retention limits.'],
+ ['Security is in the workflow','ADLC security gates cannot be skipped. Critical and High findings block, and cannot be waived.'],
+ ['Everything is replaceable','No lock-in: each tool sits behind an interface with a defined replacement, so the organization can change vendors without redesign.']
+];
+
+const PRACT=[
+ ['Baseline and budget first','Measure per call: input, output, reasoning and tool tokens.','Hard cap per task so a runaway loop fails cheaply.','Decide the quality bar before optimizing.'],
+ ['Prompting and instructions','Shortest prompt that works, stable content first, dynamic last.','Version prompts like code and test changes on a held-out set.','Structured output and explicit output caps.'],
+ ['Context and memory','Load only what the current step needs; reference by path.','Cap history and start fresh sessions between phases.','Validate what an agent writes to its own memory.'],
+ ['Agentic workflows','Design for turns, not tokens.','Cap steps, tool calls and retries, then escalate.','Check cheap things deterministically, not with the model.'],
+ ['Model selection and routing','Match model to task shape; cheap-first cascade.','Validate finalists on 100 to 200 real examples.','Revisit choices as prices change.'],
+ ['Caching','Turn on prefix caching for large stable prefixes.','Never put timestamps or IDs above the cache breakpoint.','Semantic cache only for repetitive, low-risk work, scoped per tenant.'],
+ ['Retrieval','Small ranked sets from hybrid search; re-rank a wider set.','Expand to the full parent only when needed.','Measure retrieval quality alongside tokens.'],
+ ['Output control','Cap output per task class; ask for diffs, not rewrites.','Turn off extended reasoning where it is not needed.','Validate structured output in code.'],
+ ['Testing, evaluation and infrastructure','Paired baseline versus optimized for every technique.','One gateway; budgets at task, user and project level.','Batch endpoints for non-urgent work; review quarterly.']
+];
+const FLAGS=['Token use is tracked only as one monthly total','Every request goes to one flagship model','Conversation history grows without limit in long sessions','No cache breakpoint, or a timestamp sits before stable content','Agent loops have no step, retry or token cap','Whole files or repositories are pasted into prompts','"We will optimize once it is live" is the plan'];
+
+/* ---------- ADLC (Kiro reference implementation, v1.3) ---------- */
+const PH={
+ F1:['Requirements analysis','Foundation','Understands what is being asked. Can read a Jira ticket and up to 3 linked Confluence pages (optional, read-only) and runs a 15-dimension gap check. Suggests acceptance criteria for review; nothing is written back to Jira.','Budget 650 tokens, or 1,800 with a ticket. Gaps found here cost a few tokens instead of rework later.'],
+ F2:['Requirement review','Foundation','Mandatory. Scans for related code, existing patterns and blockers before anything is built. Gate: REQUIREMENT_REVIEW_APPROVED.','Prevents duplicate work and finds reusable code, so less is generated.'],
+ F3:['Impact and spec','Foundation','Conditional. Produces the design spec, including a Security section (auth, input limits, data handling, error responses). Gate: SPEC_APPROVED.','The spec is referenced by path in later phases instead of being re-explained.'],
+ E1:['Code generation','Execution','Writes the code following the secure-coding rules. An automatic task review runs, then security gate G1 in the same checkpoint. G1 must pass before unit testing.','Budget 1,400 tokens for the phase and 600 for G1.'],
+ E2:['Unit testing','Execution','Generates and runs unit tests, with an automatic task review.','Checks are scripted where they can be, so the model is not asked to re-check itself.'],
+ E3:['Integration testing','Execution','Integration tests, with automatic task review. Runs for code generation and integration tasks.','Skipped for bug fixes and refactors by design.'],
+ E4:['Documentation','Execution','Writes documentation for code and documentation tasks.','Skipped where it adds no value.'],
+ E5:['Code review','Execution','A second review, then security gate G2, which re-verifies that nothing was missed or went stale. G2 must pass before commit.','Budget 500 tokens for G2.'],
+ E6:['Commit and PR','Execution','The single commit point. A script (G3) checks that G1 and G2 passed and that no secrets or sensitive files are included, before anything is staged.','The script, not the model, decides. Blocks are final for Critical and High findings.'],
+ E7:['Final summary','Execution','Reports the outcome and the git result.','Ends the run with cumulative token totals.']
+};
+const ROUTES={CODE_GEN:['F1','F2','F3','E1','E2','E3','E4','E5','E6','E7'],BUG_FIX:['F1','F2','E1','E2','E5','E6','E7'],INTEGRATION:['F1','F2','F3','E1','E2','E3','E5','E6','E7'],REFACTOR:['F1','F2','E1','E2','E5','E6','E7'],DOCUMENTATION:['F1','F2','E4','E5','E6','E7']};
+const GATEAT={E1:'Task review + G1',E2:'Task review',E3:'Task review',E5:'G2',E6:'G3 backstop',F2:'Approval',F3:'Spec approval'};
+const BUDGET={CODE_GEN:[12850,14000],BUG_FIX:[9100,10250],INTEGRATION:[10100,11250]};
+const CONTROLS=[['APPROVE','Continue to the next phase.'],['MODIFY','Re-run the phase with your feedback.'],['FIX','Auto-fix the issues that failed a gate.'],['SKIP','Skip an optional phase. Never allowed for G1 or G2.'],['HOLD','Pause.'],['JUMP','Go to a specific phase, but not past E1 until G1 passes or past E5 until G2 passes.'],['/stop','Save progress and exit; resume later without losing work.'],['ABORT','Cancel the workflow.']];
+const GUARD=[['SEC-001','Hardcoded secrets or keys','Critical'],['PII-001','Raw personal data in logs, prints or error messages','Critical'],['SEC-002','.env, key, certificate or database files about to be committed','High'],['API-001','New or changed endpoint without authentication or authorization','High'],['API-002','Input not validated, or sizes and lengths unbounded','High'],['INJ-001','eval, exec, unsafe deserialization, shell=True, innerHTML','High'],['INJ-002','SQL built from strings','High'],['INJ-003','User input used to build file paths','High'],['CRY-001','Weak hashes, TLS verification disabled','High'],['DEP-001','Known-vulnerable dependencies (when dependency files change)','High'],['API-003','Wildcard CORS, debug or reload left on','Medium'],['API-004','Error responses that leak internals','Medium'],['GRD-001','Guardrail configuration modified during the workflow','Medium']];
+const QA=[['Requirement analysis',250,'Acceptance criteria, scenarios, scope, risks, size'],['Existing implementation review',300,'Reusable tests, page objects, fixtures; mandatory discovery'],['Impact analysis',280,'Modules, APIs and data touched; regression blast radius'],['QA specification',200,'Full spec on disk; guardrail checks traceability and test security before approval'],['Test implementation',300,'Test code written reuse-first'],['Environment preparation',200,'Readiness verdict: READY or NOT_READY'],['Test execution',250,'Pass and fail counts only, not log dumps'],['Self-healing',300,'Root cause, reuse-first fix, re-run; maximum 3 retries, then a human (per iteration)'],['QA review',350,'Coverage, duplication and governance via a graph pass'],['Final completion report',500,'Outcome, spec and test paths, residual risk, token totals']];
+const QAMULT={Small:0.7,Medium:1,Large:1.5};
+const QASESS={Small:'2,000 to 4,000',Medium:'4,000 to 8,000',Large:'8,000 to 18,000'};
+const MCPMODES=[['MCP','Server reachable and a ticket found','Reads ticket, comments, epic, linked issues and up to 3 Confluence pages','1,800 tokens, Sonnet'],['Paste','No MCP, but ticket text was pasted or supplied as a file','Same analysis on the text','1,800 tokens, Sonnet'],['Description only','No ticket','Lighter gap check','650 tokens, Haiku']];
+/* ---------- HELPERS ---------- */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const fmt=n=>Math.round(n).toLocaleString('en-US');
+const money=n=>(n<0?'-':'')+'$'+fmt(Math.abs(n));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const state={proj:'green',asst:'with'};
+const key=()=>state.proj+'-'+state.asst;
+const tcName=id=>{const t=TC.find(x=>x[0]===id);return t?t[1]:id};
+
+function hbar(rows,{max,unit='',color='var(--teal)'}={}){
+  max=max||Math.max(...rows.map(r=>r.to||r.v));
+  return rows.map(r=>{
+    const from=r.from!=null?r.from:0, to=r.to!=null?r.to:r.v;
+    const left=from/max*100, w=(to-from)/max*100;
+    const v=r.text||(r.from!=null?`${from}–${to}${unit}`:fmt(r.v)+unit);
+    return `<div class="hb"><span class="lbl">${esc(r.l)}</span><div class="track" role="img" aria-label="${esc(r.l)}: ${esc(v)}"><i class="fill" style="left:${left}%;width:${Math.max(w,0.8)}%;background:${r.c||color}"></i></div><span class="val">${esc(v)}</span></div>`;
+  }).join('');
+}
+function logbar(rows){
+  const max=Math.log10(Math.max(...rows.map(r=>r.v)));
+  return rows.map(r=>`<div class="hb"><span class="lbl">${esc(r.l)}</span><div class="track"><i class="fill" style="width:${Math.max(4,Math.log10(r.v)/max*100)}%;background:${r.c}"></i></div><span class="val">${fmt(r.v)}</span></div>`).join('');
+}
+function lineChart(series,{xmax,ymax,ymin=0,xlab,ylab,yfmt=v=>v}){
+  const W=560,H=280,L=52,R=12,T=14,B=38, pw=W-L-R, ph=H-T-B;
+  const nice=(v)=>{const p=Math.pow(10,Math.floor(Math.log10(v||1)));const f=v/p;return (f<=1?1:f<=2?2:f<=5?5:10)*p};
+  const step=nice((ymax-ymin)/4), top=Math.ceil(ymax/step)*step, bot=Math.floor(ymin/step)*step;
+  const X=x=>L+x/xmax*pw, Y=y=>T+ph-(y-bot)/(top-bot)*ph;
+  let g='';
+  for(let v=bot;v<=top+step/1000;v+=step){g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="${Math.abs(v)<step/1000?'#8a94a3':'#e5e9f0'}"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end">${yfmt(v)}</text>`}
+  const xs=xmax<=14?1:xmax<=24?2:xmax<=40?5:10;
+  for(let x=0;x<=xmax;x+=xs){g+=`<text x="${X(x)}" y="${H-B+15}" text-anchor="middle">${x}</text>`}
+  g+=`<text x="${L+pw/2}" y="${H-4}" text-anchor="middle">${xlab}</text><text transform="translate(12 ${T+ph/2}) rotate(-90)" text-anchor="middle">${ylab}</text>`;
+  const lines=series.map(s=>{
+    const d=s.pts.map((p,i)=>(i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1)).join(' ');
+    return `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="${s.w||2.5}" ${s.dash?'stroke-dasharray="5 4"':''} stroke-linejoin="round"/>`}).join('');
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(ylab)} by ${esc(xlab)}">${g}${lines}</svg>`;
+}
+const legend=items=>`<div class="legend">${items.map(i=>`<span><i style="background:${i[1]}"></i>${i[0]}</span>`).join('')}</div>`;
+const slider=(id,label,min,max,step,val)=>`<label class="ctl"><span>${label}<b id="${id}V"></b></span><input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}"></label>`;
+const numin=(id,label,val,step=1)=>`<label class="ctl"><span>${label}</span><input type="number" id="${id}" value="${val}" min="0" step="${step}"></label>`;
+function chipsFrom(el,items,cur,onPick,attr='aria-pressed'){
+  el.innerHTML=items.map(([v,l])=>`<button class="chip" data-v="${esc(v)}" ${attr}="${v===cur}">${esc(l)}</button>`).join('');
+  el.onclick=e=>{const b=e.target.closest('.chip');if(!b)return;onPick(b.dataset.v)};
+}
+
+/* ---------- PAGES + SCENARIO ---------- */
+function setPage(p){
+  $$('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.p===p));
+  $$('.page').forEach(x=>x.classList.toggle('on',x.id===p));
+  history.replaceState(null,'','#'+p);
+}
+$$('.tab').forEach(t=>t.onclick=()=>{setPage(t.dataset.p);window.scrollTo({top:0})});
+function seg(id,prop){$(id).onclick=e=>{const b=e.target.closest('button');if(!b)return;state[prop]=b.dataset.v;$$('button',$(id)).forEach(x=>x.setAttribute('aria-pressed',x===b));renderScenario()}}
+seg('#segProj','proj');seg('#segAsst','asst');
+
+function advisor(el,mode){
+  const s=SCEN[key()];
+  const chip=id=>{const t=TOOLS.find(x=>x.id===id);return `<button class="chip" data-tool="${id}">${esc(t.name)}</button>`};
+  if(mode==='strategy'){
+    el.innerHTML=`<div class="split"><div class="card"><h3>${esc(s.name)}</h3><p>${esc(s.strategy)}</p>
+      <h3 style="margin-top:12px">What to do, in order</h3><ol class="steps">${s.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div>
+      <div><div class="card"><h3>How you will know it is working</h3><ul>${s.exit.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+      <div class="card" style="margin-top:14px"><h3>Techniques that matter most here</h3><div class="chips">${s.tcs.map(t=>`<span class="badge b" title="${esc(tcName(t))}">${t} ${esc(tcName(t))}</span>`).join('')}</div></div>
+      <div class="note">${esc(s.watch)}</div>
+      <p class="small muted">Tools for this situation are on page 2. <button class="chip" id="toP2">See the tool stack</button></p></div></div>`;
+    $('#toP2',el).onclick=()=>{setPage('p2');$('#advisor2').scrollIntoView()};
+  } else {
+    const LN=[['plan','Plan and deliver','Sets the budget and the way of working'],['ctl','Control and route','Meters, caps and routes spend'],['read','Read less','Selects only the context that is needed'],['send','Send less','Shrinks what still has to be sent'],['guard','Prevent and measure','Stops waste and shows the savings']];
+    const TG={core:['Core','g'],optional:['Optional','b'],later:['Add later','a']};
+    const cls={core:'',optional:'optional',later:'later'};
+    el.innerHTML=`<div class="legend2"><span>${esc(s.name)}.</span><span class="badge g">Core</span> start here <span class="badge b">Optional</span> benchmark before adopting <span class="badge a">Add later</span> once the prerequisite exists</div>
+     <div class="lanes">${LN.map(([lk,ln,ld])=>{
+       const items=s.stack.filter(x=>TOOLS.find(t=>t.id===x[0]).layer===lk);
+       return `<div class="lane ${items.length?'':'empty'}"><div class="lane-l"><b>${ln}</b><span>${ld}</span></div><div class="lane-r">${items.length?items.map(([id,why,tag])=>`<button class="stk ${cls[tag]}" data-tool="${id}"><b>${esc(TOOLS.find(t=>t.id===id).name)}</b><small>${esc(why)}</small><span class="badge ${TG[tag][1]}">${TG[tag][0]}</span></button>`).join(''):'<span class="none">Not part of the recommended stack for this situation.</span>'}</div></div>`}).join('')}</div>
+     <h3 style="margin-top:20px">First steps, in order</h3><div class="ostep">${s.steps.map((x,i)=>`<div class="card"><span class="n">${i+1}</span><span class="small">${esc(x)}</span></div>`).join('')}</div>
+     <div class="note">${esc(s.watch)}</div>`;
+    el.onclick=e=>{const b=e.target.closest('[data-tool]');if(b)goTool(b.dataset.tool)};
+  }
+}
+function goTool(id){
+  layer='all';renderTools();
+  const c=$('#tool-'+id);if(c){c.scrollIntoView({block:'center'});c.classList.remove('flash');void c.offsetWidth;c.classList.add('flash')}
+}
+function renderScenario(){
+  $('#scenName').textContent=SCEN[key()].name;
+  advisor($('#adv1'),'strategy');advisor($('#adv2'),'stack');
+  renderTools();renderBurn();
+  const def=state.asst==='with'?'0':'4'; if(!wlTouched){wl=+def;renderCatalog()}
+}
+
+/* ---------- PAGE 1: GROWTH MODEL ---------- */
+const G={steps:20,base:10000,add:2000,hit:80,red:40,cut:20,cap:0};
+function runModel(steps,base,add,{cache,hit,cap}){
+  let cum=0;const pts=[[0,0]];const pf=hit/100*0.1+(1-hit/100)*1.25;
+  for(let k=1;k<=steps;k++){
+    let hist=(k-1)*add;if(cap)hist=Math.min(hist,cap);
+    const inp=base+hist;
+    const c=!cache?inp:(k===1?1.25*base:pf*(inp-add)+1.25*add);
+    cum+=c;pts.push([k,cum]);
+  }
+  return {pts,total:cum};
+}
+function buildGrowthCtl(){
+  $('#growthCtl').innerHTML=`<div class="ctls">
+   ${slider('gSteps','Steps in the task',5,40,1,G.steps)}${slider('gBase','Starting context (system, tools, files)',2000,30000,1000,G.base)}${slider('gAdd','Tokens added per step',500,5000,250,G.add)}
+  </div><h3 style="margin-top:10px">Levers</h3><div class="ctls">
+   ${slider('gHit','Cache hit rate on repeated text',0,100,5,G.hit)}${slider('gRed','Tool output reduced by (compression, filtering)',0,90,5,G.red)}${slider('gCut','Fewer steps (spec, graph, guards)',0,50,5,G.cut)}
+   <label class="ctl"><span>Compaction cap on history</span><select id="gCap"><option value="0">Off</option><option value="30000">30,000 tokens</option><option value="50000">50,000 tokens</option></select></label></div>`;
+  $('#growthCtl').oninput=drawGrowth;drawGrowth();
+}
+function drawGrowth(){
+  G.steps=+$('#gSteps').value;G.base=+$('#gBase').value;G.add=+$('#gAdd').value;G.hit=+$('#gHit').value;G.red=+$('#gRed').value;G.cut=+$('#gCut').value;G.cap=+$('#gCap').value;
+  $('#gStepsV').textContent=' '+G.steps;$('#gBaseV').textContent=' '+fmt(G.base);$('#gAddV').textContent=' '+fmt(G.add);$('#gHitV').textContent=' '+G.hit+'%';$('#gRedV').textContent=' '+G.red+'%';$('#gCutV').textContent=' '+G.cut+'%';
+  const a=runModel(G.steps,G.base,G.add,{cache:false,hit:0,cap:0});
+  const st2=Math.max(1,Math.round(G.steps*(1-G.cut/100)));
+  const b=runModel(st2,G.base,G.add*(1-G.red/100),{cache:true,hit:G.hit,cap:G.cap});
+  const k=v=>Math.round(v/1000)+'k';
+  const one=G.base+0, ratio=a.total/one;
+  $('#growthChart').innerHTML=`<h3>Cumulative input cost over the task</h3>`+legend([['Unoptimized',"#b91c1c"],['With the levers','#0f766e']])+
+    lineChart([{pts:a.pts,color:'#b91c1c'},{pts:b.pts,color:'#0f766e'}],{xmax:G.steps,ymax:a.total,xlab:'Step',ylab:'Input tokens (equivalent)',yfmt:k});
+  const saved=(1-b.total/a.total)*100;
+  $('#growthStats').innerHTML=`<div class="stats"><div class="stat"><b>${ratio.toFixed(1)}×</b>Unoptimized task vs one call with the starting context</div><div class="stat"><b>${fmt(a.total/1000)}k</b>Unoptimized, input tokens</div><div class="stat good"><b>${fmt(b.total/1000)}k</b>With levers (${st2} steps)</div><div class="stat good"><b>${saved.toFixed(0)}%</b>Lower</div></div>`;
+}
+
+/* ---------- PAGE 1: PRICE CHART ---------- */
+function renderPrice(){
+  $('#priceChart').innerHTML=hbar([
+   {l:'Cached input (re-read)',v:0.1,text:'0.1×',c:'var(--green)'},{l:'Batch lane (non-urgent)',v:0.5,text:'0.5×',c:'var(--green)'},{l:'Normal input',v:1,text:'1×',c:'var(--navy-mid)'},{l:'Cache write',v:1.25,text:'1.25×',c:'var(--amber)'},
+   {l:'Output on larger models',v:5,text:'about 5×',c:'var(--red)'},{l:'Reasoning overhead',from:3,to:8,text:'3–8× more tokens',c:'var(--red)'}],{max:8});
+}
+
+/* ---------- PAGE 1: FRAMEWORK ---------- */
+let lad=0,lif=0,lp=0;
+function renderLadder(){
+  $('#ladder').innerHTML=LADDER.map((r,i)=>`<button class="tile" aria-pressed="${i===lad}" data-i="${i}"><b>${i+1}. ${r[0]}</b><small>${esc(r[2])}</small></button>`).join('');
+  const r=LADDER[lad];$('#ladderDetail').innerHTML=`<b>${r[0]}: ${esc(r[1])}</b><p class="small" style="margin-top:4px">${esc(r[3])}</p><p class="small muted">Techniques: ${esc(r[4])}</p>`;
+}
+$('#ladder').onclick=e=>{const b=e.target.closest('.tile');if(b){lad=+b.dataset.i;renderLadder()}};
+function renderLoop(){
+  $('#loop').innerHTML=LOOP.map((r,i)=>`${i?'<span class="arr" aria-hidden="true">→</span>':''}<button class="tile" data-i="${i}" aria-pressed="${i===lp}"><b>${r[0]}</b><small>${r[1]}</small></button>`).join('');
+  $('#loopDetail').innerHTML=`<p class="small">${esc(LOOP[lp][2])}</p><p class="tiny muted">Actual spend from the gateway recalibrates the next estimate, so the loop improves each time.</p>`;
+}
+$('#loop').onclick=e=>{const b=e.target.closest('.tile');if(b){lp=+b.dataset.i;renderLoop()}};
+function renderLife(){
+  $('#life').innerHTML=LIFE.map((r,i)=>`<button class="chip" data-i="${i}" aria-pressed="${i===lif}">${r[0]}</button>`).join('');
+  const r=LIFE[lif];$('#lifeDetail').innerHTML=`<b>${esc(r[1])}</b><p class="small">Components: ${esc(r[2])}<br>Signature measure: ${esc(r[3])}</p>`;
+}
+$('#life').onclick=e=>{const b=e.target.closest('.chip');if(b){lif=+b.dataset.i;renderLife()}};
+
+/* ---------- PAGE 1: CATALOG ---------- */
+let wl=0,wlTouched=false;
+function renderCatalog(){
+  chipsFrom($('#wlChips'),WL.map((w,i)=>[String(i),w]),String(wl),v=>{wl=+v;wlTouched=true;renderCatalog()});
+  const mark={P:'<span class="badge g">Primary</span>',C:'<span class="badge a">Situational</span>',N:'<span class="badge">Not applicable</span>'};
+  const order={P:0,C:1,N:2};
+  const rows=[...TC].sort((a,b)=>order[a[4][wl]]-order[b[4][wl]]);
+  $('#catTable').innerHTML=`<thead><tr><th>Technique</th><th>What it does for the business</th><th>Priority tier</th><th>For ${esc(WL[wl].toLowerCase())}</th></tr></thead><tbody>${rows.map(r=>`<tr class="${r[4][wl]==='N'?'dim':''}"><td><b>${r[0]}</b> ${esc(r[1])}</td><td>${esc(r[3])}</td><td>${esc(r[2])}</td><td>${mark[r[4][wl]]}</td></tr>`).join('')}</tbody>`;
+}
+
+/* ---------- PAGE 1: VALUE + ROI ---------- */
+function renderValue(){
+  $('#valueCards').innerHTML=VALUE.map(v=>`<details class="acc" style="margin:0"><summary>${esc(v[0])}</summary><div class="small"><p>${esc(v[1])}</p><p style="margin-top:4px">${esc(v[2])}</p><p class="muted" style="margin-top:4px">Measured by: ${esc(v[3])}</p></div></details>`).join('');
+}
+const R={spend:20000,addr:70,pct:45,eng:50,hrs:2,rate:60,once:60000,run:3000};
+function buildRoi(){
+  $('#roiCtl').innerHTML=`<div class="ctls">${numin('rSpend','Monthly AI spend today ($)',R.spend,1000)}${numin('rEng','Engineers using AI',R.eng)}${numin('rHrs','Hours per engineer per month reclaimed from less rework',R.hrs,0.5)}${numin('rRate','Loaded cost per hour ($)',R.rate,5)}${numin('rOnce','One-time programme cost ($)',R.once,5000)}${numin('rRun','Monthly run cost of tooling and review ($)',R.run,500)}</div>
+  <div class="ctls">${slider('rAddr','Share of spend the framework can address',20,100,5,R.addr)}${slider('rPct','Saving on the addressable share',10,70,5,R.pct)}</div>
+  <p class="tiny muted">The framework's indicative range for mature adoption is 30 to 60 percent on suitable workloads. It is proven, not assumed, in the pilot.</p>`;
+  $('#roiCtl').oninput=drawRoi;drawRoi();
+}
+function roiCalc(pct){
+  const save=R.spend*R.addr/100*pct/100, prod=R.eng*R.hrs*R.rate, ben=save+prod;
+  const cost=R.once+12*R.run, roi=(12*ben-cost)/cost, net=ben-R.run;
+  return {save,prod,ben,cost,roi,net,pay:net>0?R.once/net:Infinity};
+}
+function drawRoi(){
+  R.spend=+$('#rSpend').value||0;R.eng=+$('#rEng').value||0;R.hrs=+$('#rHrs').value||0;R.rate=+$('#rRate').value||0;R.once=+$('#rOnce').value||0;R.run=+$('#rRun').value||0;R.addr=+$('#rAddr').value;R.pct=+$('#rPct').value;
+  $('#rAddrV').textContent=' '+R.addr+'%';$('#rPctV').textContent=' '+R.pct+'%';
+  const m=roiCalc(R.pct),lo=roiCalc(30),hi=roiCalc(60);
+  const cum=r=>{const p=[];for(let i=0;i<=12;i++)p.push([i,-R.once+i*r.net]);return p};
+  const all=[cum(lo),cum(m),cum(hi)].flat().map(p=>p[1]);const mx=Math.max(...all,1),mn=Math.min(...all,-1);
+  const k=v=>(v<0?'-':'')+'$'+Math.abs(Math.round(v/1000))+'k';
+  $('#roiOut').innerHTML=`<div class="stats"><div class="stat good"><b>${money(m.save)}</b>Monthly cost saving</div><div class="stat"><b>${money(m.prod)}</b>Monthly productivity value</div><div class="stat good"><b>${isFinite(m.roi)?Math.round(m.roi*100)+'%':'–'}</b>First-year ROI</div><div class="stat"><b>${isFinite(m.pay)?m.pay.toFixed(1)+' mo':'No payback'}</b>Payback</div></div>
+   <h3>Cumulative net benefit, first 12 months</h3>${legend([['30% saving','#9aa5b1'],['Selected','#0f766e'],['60% saving','#1e88e5']])}
+   ${lineChart([{pts:cum(lo),color:'#9aa5b1',w:2,dash:1},{pts:cum(hi),color:'#1e88e5',w:2,dash:1},{pts:cum(m),color:'#0f766e'}],{xmax:12,ymax:mx,ymin:mn,xlab:'Month',ylab:'Cumulative net ($)',yfmt:k})}
+   <p class="tiny muted">First-year ROI = (12 × monthly benefit − programme cost) ÷ programme cost, where programme cost = one-time cost + 12 × monthly run cost. Range at 30 to 60 percent saving: ${Math.round(lo.roi*100)}% to ${Math.round(hi.roi*100)}%.</p>`;
+}
+
+/* ---------- PAGE 1: MEASURE / ADOPT / TRUST ---------- */
+let kp='Cost';
+function renderKpi(){
+  chipsFrom($('#kpiTabs'),Object.keys(KPI).map(k=>[k,k]),kp,v=>{kp=v;renderKpi()},'aria-selected');
+  $('#kpiBody').innerHTML=`<ul style="list-style:none;margin:0">${KPI[kp].map(x=>`<li style="padding:6px 0;border-bottom:1px solid var(--border)"><b>${esc(x[0])}</b><br><span class="small muted">${esc(x[1])}</span></li>`).join('')}</ul>`;
+}
+let mat=0;
+function renderMat(){
+  $('#matTabs').innerHTML=MATURITY.map((m,i)=>`<button class="chip" data-i="${i}" aria-pressed="${i===mat}">${m[0]}</button>`).join('');
+  const m=MATURITY[mat];$('#matBody').innerHTML=`<p><b>${esc(m[0])}</b>: ${esc(m[1])}</p><p class="small" style="margin-top:6px"><b>Evidence:</b> ${esc(m[2])}</p><p class="small"><b>To move up:</b> ${esc(m[3])}</p>`;
+}
+$('#matTabs').onclick=e=>{const b=e.target.closest('.chip');if(b){mat=+b.dataset.i;renderMat()}};
+function renderAdopt(){
+  $('#waves').innerHTML=WAVES.map((w,i)=>`<div class="card" style="margin-bottom:8px"><b>Wave ${i+1}: ${w[0]}</b><p class="small">${esc(w[1])}</p><p class="tiny muted">Exit signal: ${esc(w[2])}</p></div>`).join('');
+  $('#pilot').innerHTML=PILOT.map(p=>`<div class="card" style="margin-bottom:8px"><b>${p[0]}</b><p class="small">${esc(p[1])}</p></div>`).join('');
+  let start=0;const tot=ROAD.reduce((a,r)=>a+(r[1]+r[2])/2,0);
+  $('#roadmap').innerHTML=ROAD.map(r=>{const mid=(r[1]+r[2])/2;const row=`<div class="hb"><span class="lbl">${r[0]}<br><span class="tiny muted">${esc(r[3])}</span></span><div class="track" style="height:22px"><i class="fill" style="left:${start/tot*100}%;width:${mid/tot*100}%;background:var(--navy-mid)"></i></div><span class="val">${r[1]}–${r[2]} wks</span></div>`;start+=mid;return row}).join('')+
+   `<div class="hb"><span class="lbl">7 Continuous optimization<br><span class="tiny muted">Monthly reviews, calibration, assurance</span></span><div class="track" style="height:22px"><i class="fill" style="left:${start/tot*100}%;width:${100-start/tot*100}%;background:repeating-linear-gradient(45deg,var(--teal) 0 6px,#5fb8b0 6px 12px)"></i></div><span class="val">Ongoing</span></div>`;
+}
+function renderTrust(){$('#trustCards').innerHTML=TRUST.map(t=>`<div class="card"><h3>${esc(t[0])}</h3><p class="small">${esc(t[1])}</p></div>`).join('')}
+
+/* ---------- PAGE 2: BURN ---------- */
+let burn='hist';
+function renderBurn(){
+  const rel=b=>b.who==='both'||(state.asst==='with'?b.who==='assistant':b.who==='app');
+  $('#burnTiles').innerHTML=BURN.map(b=>`<button class="tile ${rel(b)?'':'dim'}" data-id="${b.id}" aria-pressed="${b.id===burn}"><b>${esc(b.n)}</b><small>${rel(b)?'Relevant to your situation':'Less relevant to your situation'}</small></button>`).join('');
+  const b=BURN.find(x=>x.id===burn);
+  $('#burnDetail').innerHTML=`<b>${esc(b.n)}</b><p style="margin-top:4px">${esc(b.what)}</p><p class="small" style="margin-top:6px"><b>What fixes it:</b> ${esc(b.fix)}</p>
+   <div class="chips"><span class="small muted" style="align-self:center">Techniques:</span>${b.tcs.map(t=>`<span class="badge b">${t} ${esc(tcName(t))}</span>`).join('')}</div>
+   <div class="chips"><span class="small muted" style="align-self:center">Tools:</span>${b.tools.map(id=>`<button class="chip" data-tool="${id}">${esc(TOOLS.find(x=>x.id===id).name)}</button>`).join('')}</div>`;
+}
+$('#burnTiles').onclick=e=>{const t=e.target.closest('.tile');if(t){burn=t.dataset.id;renderBurn()}};
+$('#burnDetail').onclick=e=>{const b=e.target.closest('[data-tool]');if(b)goTool(b.dataset.tool)};
+
+/* ---------- PAGE 2: TOOLS ---------- */
+let layer='all';
+function renderTools(){
+  chipsFrom($('#layerChips'),[['all','All layers'],...Object.entries(LAYERS)],layer,v=>{layer=v;renderTools()});
+  const list=TOOLS.filter(t=>layer==='all'||t.layer===layer);
+  $('#toolGrid').innerHTML=list.map(t=>{const rec=SCEN[key()].stack.some(x=>x[0]===t.id);return `<article class="card tool ${rec?'rec':''}" id="tool-${t.id}">
+   <div><h3>${esc(t.name)}</h3><span class="badge b">${LAYERS[t.layer]}</span><span class="badge">${esc(t.when)}</span><span class="badge">Effort: ${esc(t.effort)}</span>${rec?'<span class="badge g">Recommended for your situation</span>':''}</div>
+   <p class="row">${esc(t.what)}</p><p class="row"><span class="k">Business value:</span> ${esc(t.value)}</p>
+   <details><summary class="small" style="cursor:pointer;color:var(--navy-mid)">Reported results and watch-outs</summary>
+    <p class="row" style="margin-top:6px"><span class="k">Reported:</span> ${esc(t.rep)}</p><p class="row"><span class="k">Watch-outs:</span> ${esc(t.watch)}</p>
+    <p class="tiny muted" style="margin-top:4px">Version: ${esc(t.ver)} · License: ${esc(t.lic)} ${t.href?` · <a href="${t.href}" target="_blank" rel="noopener">Source</a>`:''}</p></details></article>`}).join('');
+}
+
+/* ---------- PAGE 2: BENCH ---------- */
+let bt='live';
+const BENCH={
+ live:{n:'Live agent tests',html:()=>`<h3>Four-task repair test: input tokens (weighted for cache prices), lower is better</h3>${hbar([{l:'No compression (control)',v:134706,c:'#9aa5b1'},{l:'Token Optimizer MCP, earlier setting',v:100818,c:'var(--blue)'},{l:'Token Optimizer MCP, current default',v:49053,c:'var(--teal)'},{l:'Headroom shipped proxy',v:48626,c:'var(--navy-mid)'}])}
+   <p class="small muted">All four arms passed 4 of 4 tests. Both tools cut this measure by about 64 percent.</p>
+   <h3 style="margin-top:18px">Codex three-task test: mean input tokens per run (separate scale)</h3>${hbar([{l:'No compression (control)',v:55632,c:'#9aa5b1'},{l:'Token Optimizer MCP',v:42468,c:'var(--teal)'},{l:'Headroom 0.37.0, max-compression mode',v:71626,c:'var(--navy-mid)'}])}
+   <p class="small muted">Requests per run: control 3.0, Token Optimizer 3.0, Headroom 4.3. Compressing harder can force the model to ask for content back, and each extra turn costs more than the saved tokens.</p>
+   <div class="note">Both tests were run and published by the Token Optimizer MCP project, on small synthetic tasks, and the Headroom arm ran in its most aggressive mode rather than its cache-preserving mode. Read them as a reminder that turns matter, not as a verdict between tools.</div>`},
+ type:{n:'Reduction by content type',html:()=>`<h3>Reported reduction (percent of that content removed)</h3>${hbar([{l:'JSON payloads (Headroom)',from:60,to:95,c:'var(--teal)'},{l:'Command output (RTK)',from:60,to:90,c:'var(--blue)'},{l:'Overall context (Token Optimizer MCP headline)',from:60,to:90,c:'var(--navy-mid)'},{l:'Code for coding agents (Headroom)',from:15,to:20,c:'var(--amber)'}],{max:100,unit:'%'})}
+   <div class="note">The spread matters more than the peak. Machine-generated text (JSON, logs, command output) compresses well; source code and small, unique content do not. That is why the framework compresses selectively and measures the bill, not the byte count.</div>`},
+ graph:{n:'Graph versus raw reading',html:()=>`<h3>Tokens per question, log scale (shorter bar is cheaper)</h3>${logbar([{l:'Graphify: reading the raw files',v:123000,c:'#9aa5b1'},{l:'Graphify: querying the graph',v:1700,c:'var(--teal)'},{l:'code-review-graph: whole repository',v:208821,c:'#9aa5b1'},{l:'code-review-graph: graph responses',v:3190,c:'var(--teal)'}])}
+   <p class="small muted">Roughly 72 times fewer (Graphify, 52-file mixed corpus) and roughly 65 times fewer (code-review-graph, its own repository).</p>
+   <div class="note">Each figure is the maintainer's own measurement on one corpus, and compares against reading everything. Real assistants already avoid reading everything, so expect a smaller gain in practice. The pilot measures it on your repository.</div>`}
+};
+function renderBench(){
+  chipsFrom($('#benchTabs'),Object.entries(BENCH).map(([k,v])=>[k,v.n]),bt,v=>{bt=v;renderBench()},'aria-selected');
+  $('#benchBody').innerHTML=BENCH[bt].html();
+}
+
+/* ---------- PAGE 2: STACK CHECKER ---------- */
+const STK=[['litellm','LiteLLM gateway','ctl'],['calc','Token Cost Calculator','plan'],['adlc','ADLC workflows','plan'],['crg','code-review-graph','read'],['graphify','Graphify','read'],['headroom','Headroom','send'],['ooples','Token Optimizer MCP','guard'],['rtk','RTK','send'],['pcache','Prompt caching','reuse'],['scache','Semantic caching','reuse']];
+const STKL={plan:'Plan and deliver',read:'Read less',send:'Send less',guard:'Prevent and measure',reuse:'Reuse',ctl:'Control and route'};
+const stk=new Set();
+function renderStack(){
+  $('#stackPick').innerHTML=STK.map(s=>`<label class="chk"><input type="checkbox" data-id="${s[0]}" ${stk.has(s[0])?'checked':''}><span>${s[1]}</span></label>`).join('');
+  const has=id=>stk.has(id), msgs=[];
+  if(has('headroom')&&has('ooples'))msgs.push(['a','Headroom and Token Optimizer MCP both compress requests. Choose one per environment and benchmark before combining.']);
+  if(has('rtk')&&(has('headroom')||has('ooples')))msgs.push(['a','RTK filters at the source and a proxy compresses at the request. They overlap in effect, so benchmark four setups: neither, RTK only, proxy only, both.']);
+  if(has('crg')&&has('graphify'))msgs.push(['a','Two graph providers add maintenance. Keep one as the source of truth unless they cover different content.']);
+  if((has('headroom')||has('ooples'))&&has('pcache'))msgs.push(['b','Compress only the newest content so the cached prefix stays byte-identical, otherwise cache hits turn into full-price writes.']);
+  if(has('scache')&&!has('litellm'))msgs.push(['a','Semantic caching needs a gateway or store that scopes cache keys per tenant and permission. Never serve a cached answer across a trust boundary.']);
+  if(stk.size&&!has('litellm'))msgs.push(['a','No gateway selected. Without one, spend is not visible or capped in a single place.']);
+  if(has('adlc'))msgs.push(['b','Capture a baseline of 10 to 20 recent tasks before the first ADLC run, otherwise the effect cannot be shown.']);
+  if(!stk.size)msgs.push(['b','Select tools on the left.']);
+  const covered=new Set(STK.filter(s=>stk.has(s[0])).map(s=>s[2]));
+  $('#stackOut').innerHTML=`<h3>Layers covered</h3><div class="chips">${Object.entries(STKL).map(([k,l])=>`<span class="badge ${covered.has(k)?'g':''}">${covered.has(k)?'Covered: ':'Missing: '}${l}</span>`).join('')}</div><h3 style="margin-top:12px">Checks</h3>${msgs.map(m=>`<div class="note ${m[0]==='b'?'blue':''}">${esc(m[1])}</div>`).join('')}`;
+}
+$('#stackPick').onchange=e=>{const i=e.target.closest('input');if(!i)return;i.checked?stk.add(i.dataset.id):stk.delete(i.dataset.id);renderStack()};
+
+/* ---------- PAGE 2: ADLC ---------- */
+let at='dev',route='CODE_GEN',php='F1',jira=false,qsz='Medium',gsev='All';
+const ATABS=[['dev','Developer workflow'],['qa','QA workflow'],['sec','Security gates'],['mcp','Jira and Confluence']];
+function renderAdlc(){
+  chipsFrom($('#adlcTabs'),ATABS,at,v=>{at=v;renderAdlc()},'aria-selected');
+  const el=$('#adlcBody');
+  if(at==='dev'){
+    const r=ROUTES[route];
+    el.innerHTML=`<div class="card"><h3>Choose the type of task</h3><div class="chips" id="rtChips"></div>
+     <p class="small muted">Phases that do not apply to the task are skipped, and the skip is disclosed. Select a phase for detail.</p>
+     <div class="strip">${Object.keys(PH).map(id=>`<button class="ph ${r.includes(id)?'':'off'} ${id===php?'sel':''}" data-id="${id}"><b>${id}</b> ${esc(PH[id][0])}${GATEAT[id]&&r.includes(id)?`<span class="g">${GATEAT[id]}</span>`:''}</button>`).join('')}</div>
+     <div class="detail"><b>${php}: ${esc(PH[php][0])}</b> <span class="badge b">${PH[php][1]}</span>${r.includes(php)?'':'<span class="badge">Skipped for this task type</span>'}<p class="small" style="margin-top:4px">${esc(PH[php][2])}</p><p class="small muted"><b>Why it saves tokens:</b> ${esc(PH[php][3])}</p></div></div>
+     <div class="split" style="margin-top:14px"><div class="card"><h3>Typical total tokens per task</h3><label class="chk"><input type="checkbox" id="jiraT" ${jira?'checked':''}><span>Task starts from a Jira ticket (larger F1 budget)</span></label><div id="budChart"></div><p class="tiny muted">Typical totals including both security gates. Optional per-phase model choice (Haiku, Sonnet, Opus) is documented to save a further 20 to 30 percent. Documentation-only tasks are not budgeted separately.</p></div>
+     <div class="card"><h3>Your controls at every checkpoint</h3><table class="tbl"><tbody>${CONTROLS.map(c=>`<tr><td><b>${c[0]}</b></td><td>${esc(c[1])}</td></tr>`).join('')}</tbody></table></div></div>
+     <div class="note teal">The same pattern also exists as an assistant-agnostic 10-phase Developer workflow (requirement, impact, spec, design, implementation, testing, debugging, refactoring, review, documentation) with a requirement guardrail before approval and a completion guardrail before close-out. The Kiro files play the same role as <b>claude.md</b> in Claude Code, <b>.mdc</b> rules in Cursor and <b>copilot-instructions.md</b> in GitHub Copilot.</div>`;
+    chipsFrom($('#rtChips'),Object.keys(ROUTES).map(k=>[k,k.replace('_',' ').toLowerCase().replace(/^./,c=>c.toUpperCase())]),route,v=>{route=v;if(!ROUTES[v].includes(php))php=ROUTES[v][0];renderAdlc()});
+    el.querySelector('.strip').onclick=e=>{const b=e.target.closest('.ph');if(b){php=b.dataset.id;renderAdlc()}};
+    $('#jiraT').onchange=e=>{jira=e.target.checked;renderAdlc()};
+    const rows=Object.entries(BUDGET).map(([k,v])=>({l:k.replace('_',' ').toLowerCase().replace(/^./,c=>c.toUpperCase()),v:v[jira?1:0],c:k===route?'var(--teal)':'var(--navy-mid)'}));
+    $('#budChart').innerHTML=hbar(rows,{max:15000});
+  } else if(at==='qa'){
+    const m=QAMULT[qsz];
+    el.innerHTML=`<div class="card"><h3>Ten chat-gated phases, each ending in a short summary and a stop</h3><p class="small muted">Nothing advances without an explicit approval. Detail lives in files on disk; chat carries only counts and verdicts. Bars show the chat token cap per phase.</p>
+     <div class="chips" id="szChips"></div>${hbar(QA.map((q,i)=>({l:`${i+1}. ${q[0]}`,v:Math.round(q[1]*m),c:'var(--navy-mid)'})),{max:750})}
+     <p class="small">Typical whole-session spend for a ${qsz.toLowerCase()} task: <b>${QASESS[qsz]} tokens</b>, well below a paste-everything session because spec detail is offloaded to disk.</p></div>
+     <div class="grid g2" style="margin-top:14px"><div class="card"><h3>What each phase produces</h3><ul>${QA.map(q=>`<li><b>${esc(q[0])}:</b> ${esc(q[2])}</li>`).join('')}</ul></div>
+     <div class="card"><h3>How it saves tokens</h3><ul><li>Later phases reference the spec by path instead of repeating the requirement.</li><li>A code graph answers structural questions without dumping files.</li><li>Impact analysis works from the diff, not whole modules.</li><li>At most 3 memory notes are loaded per phase.</li><li>Self-healing is capped at 3 retries, then a human decides.</li><li>Unused phases are skipped with disclosure, so a review-only task never pays for environment or healing.</li></ul>
+     <h3 style="margin-top:12px">Six coverage pillars</h3><div class="chips">${['Functional','Technical','Security','UX','Entitlement','Reliability'].map(p=>`<span class="badge t">${p}</span>`).join('')}</div></div></div>`;
+    chipsFrom($('#szChips'),Object.keys(QAMULT).map(k=>[k,`${k} task (×${QAMULT[k]})`]),qsz,v=>{qsz=v;renderAdlc()});
+  } else if(at==='sec'){
+    const sevs=['All','Critical','High','Medium'];const list=GUARD.filter(g=>gsev==='All'||g[2]===gsev);
+    const cls={Critical:'r',High:'a',Medium:'b'};
+    el.innerHTML=`<div class="split"><div class="card"><h3>Where the gates sit</h3><div class="strip"><span class="ph">E1 Code</span><span class="ph sel">G1 blocks E2</span><span class="ph">E2 to E4</span><span class="ph">E5 Review</span><span class="ph sel">G2 blocks E6</span><span class="ph sel">E6 Commit, G3 script</span></div>
+     <ul><li><b>G1</b> runs automatically after code generation, in the same checkpoint. <b>G2</b> re-verifies after review, so fixes made during review are also checked.</li><li><b>G3</b> is a script inside the commit step. It blocks the commit if a gate is missing or stale, or if secrets or sensitive files are present.</li><li>A recorded pass is bound to the exact set of changed files. Any later change makes it stale and the gate re-runs.</li><li>G1 and G2 cannot be skipped, jumped past, or approved while failing.</li></ul></div>
+     <div class="card"><h3>Severity policy</h3><table class="tbl"><tbody><tr><td><span class="badge r">Critical</span> <span class="badge a">High</span></td><td>Blocks. Cannot be waived.</td></tr><tr><td><span class="badge b">Medium</span></td><td>Blocks unless a valid, unexpired waiver names an approver.</td></tr><tr><td><span class="badge">Low</span></td><td>Informational.</td></tr></tbody></table>
+     <p class="small muted" style="margin-top:8px">The script and severity policy decide pass or fail. The agent explains and triages, and never passes a gate on judgment alone. If a scanner is missing, the gate says so instead of reporting a silent pass.</p></div></div>
+     <h3 style="margin-top:16px">Checks in version 1</h3><div class="chips" id="sevChips"></div><div class="tscroll"><table class="tbl"><thead><tr><th>Rule</th><th>What it catches</th><th>Severity</th></tr></thead><tbody>${list.map(g=>`<tr><td><b>${g[0]}</b></td><td>${esc(g[1])}</td><td><span class="badge ${cls[g[2]]}">${g[2]}</span></td></tr>`).join('')}</tbody></table></div>`;
+    chipsFrom($('#sevChips'),sevs.map(s=>[s,s]),gsev,v=>{gsev=v;renderAdlc()});
+  } else {
+    el.innerHTML=`<div class="split"><div class="card"><h3>Optional, read-only, never blocks</h3><p class="small">Requirement analysis can read a Jira Cloud ticket and linked Confluence pages through the Atlassian MCP server. It is off by default, and the workflow runs the same phases with or without it. Nothing is ever written back to Jira or Confluence.</p>
+     <div class="tscroll" style="margin-top:8px"><table class="tbl"><thead><tr><th>Mode</th><th>When</th><th>Budget and model</th></tr></thead><tbody>${MCPMODES.map(m=>`<tr><td><b>${m[0]}</b><br><span class="tiny muted">${esc(m[2])}</span></td><td>${esc(m[1])}</td><td>${esc(m[3])}</td></tr>`).join('')}</tbody></table></div></div>
+     <div class="card"><h3>Safety built in</h3><ul><li>Write, delete and manage tools are blocked in configuration.</li><li>Text from tickets and pages is treated as data; instructions inside it are ignored, with a warning.</li><li>Real personal data and secrets found in tickets are masked in output, saved briefs and logs.</li><li>Bounded fetch: the first 3,000 characters of the description, the last 5 comments, up to 3 linked issues and 3 pages. Attachments are never downloaded.</li><li>Only the ticket key, timestamp and page titles are saved, never ticket text.</li></ul>
+     <p class="small muted" style="margin-top:8px">Also configured: the code-review-graph server, enabled. Figma and Playwright are described but not yet connected.</p></div></div>`;
+  }
+}
+
+/* ---------- PAGE 2: CALC + PRACTICES ---------- */
+function renderCalc(){
+  $('#calcBody').innerHTML=`<div class="grid g3"><div class="card"><h3>1. Questionnaire</h3><p class="small">About 20 plain-English questions in five minutes: application type, scale, compliance, budget and duration. No token knowledge needed.</p></div>
+   <div class="card"><h3>2. Recommendation engine</h3><p class="small">A deterministic run matches the answers against 350+ models and assigns roles: generation, embedding, reasoning.</p></div>
+   <div class="card"><h3>3. Cost calculator</h3><p class="small">Pre-filled from the engine. Change users, requests per day and duration, and the project total recalculates instantly.</p></div></div>
+   <div class="grid g3" style="margin-top:14px"><div class="stat"><b>350+</b>models compared across 22 providers</div><div class="stat"><b>±10%</b>accuracy at steady state (Nitor briefing)</div><div class="stat"><b>4</b>independent price sources, updated daily</div></div>
+   <div class="card" style="margin-top:14px"><h3>Savings it surfaces automatically</h3>${hbar([{l:'Prompt caching discount (cached tokens)',from:50,to:90,text:'50–90% off',c:'var(--green)'},{l:'Batch API for work that can wait',v:50,text:'50% off',c:'var(--green)'}],{max:100})}<p class="small">It also flags thinking-token models early, because reasoning is billed at the output rate and can multiply cost by 3 to 8 times.</p></div>`;
+}
+function renderPractices(){
+  $('#practiceList').innerHTML=PRACT.map(p=>`<article class="card pcard"><h3>${esc(p[0])}</h3><ul>${p.slice(1).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></article>`).join('');
+  const on=new Set();
+  const draw=()=>{const n=on.size;const c=n<=1?'var(--green)':n<=3?'var(--amber)':'var(--red)';
+    const msg=n===0?'None ticked. Keep it that way.':n<=1?'Low risk. Fix it before it spreads.':n<=3?'Moderate risk. A baseline and a gateway are the first moves.':'High risk. Expect avoidable spend; start with visibility and a hard cap per task.';
+    $('#flags').innerHTML='<div class="flaggrid">'+FLAGS.map((f,i)=>`<label class="chk"><input type="checkbox" data-i="${i}" ${on.has(i)?'checked':''}><span>${esc(f)}</span></label>`).join('')+'</div>'+`<div class="meter" style="margin-top:10px"><i style="width:${n/FLAGS.length*100}%;background:${c}"></i></div><p class="small" style="margin-top:6px"><b>${n} of ${FLAGS.length}.</b> ${msg}</p>`;
+  };
+  draw();$('#flags').onchange=e=>{const i=e.target.closest('input');if(!i)return;const k=+i.dataset.i;i.checked?on.add(k):on.delete(k);draw()};
+}
+
+/* ---------- SHARED: HOW ASSISTANTS WORK (pages 1 and 2) ---------- */
+const MECH_MAP=[
+ ['Stateless loop: full context resent on every call','Growth model; design rule DR-01 (freeze the cache prefix)','Covered',''],
+ ['Stable prefix and prompt caching','TC-01 prefix caching; DR-01; DR-11 (phase boundaries are cache boundaries)','Strong',''],
+ ['Tool and MCP schema cost','TC-11 tool and MCP schema pruning','Covered',''],
+ ['Tool and command output','TC-06 Headroom; TC-07 RTK, including the hook-coverage limit','Strong',''],
+ ['History growth and compaction','TC-12 conversation compaction; session hygiene','Covered','Generic; no per-tool triggers.'],
+ ['Retrieval','TC-03 dependency graph; TC-04 RAG optimization','Covered','Does not explain how each assistant retrieves.'],
+ ['Chunked, spec-driven work','TC-14 ADLC','Strong',''],
+ ['Model routing and reasoning effort','TC-09 routing and cascade; TC-08 output and reasoning control','Covered','At gateway and app level, not assistant level.'],
+ ['Instruction files (CLAUDE.md, AGENTS.md, rules, steering)','One row in the assistant integration table; one line in session hygiene','Thin','See gap G1.']];
+const MECH_TOOLS=[
+ ['RTK','Shell command output (git, tests, lint, ls, grep)'],
+ ['Headroom','Payload content: JSON, logs, tool results, via proxy, library or MCP'],
+ ['ooples (Token Optimizer MCP)','File reads and search calls (caching and diffs), plus a knowledge graph and effort routing'],
+ ['Graph tools','Code retrieval: query a graph instead of loading files']];
+const MECH_GAPS=[
+ ['G1','Instruction-file loading policy','Instruction files sit in the prefix on every call, but the framework gives no size budget and no guidance on always-on versus path-scoped versus on-demand loading.','Set a size budget for always-on files, move task- or path-specific rules to conditional or on-demand loading, and check file size as a cache-buster.'],
+ ['G2','Subagents and session isolation','Subagents keep exploration noise out of the main context, but total tokens across all agents usually rise. Neither effect is covered.','Add a rule: isolate exploration only when the main-context saving exceeds the extra spend, and measure total tokens across agents.'],
+ ['G3','Assistant mechanism table','The assistant integration table lists integration points only.','Add columns for retrieval style, instruction mechanism, compaction behavior and billing unit, verified per tool and release.'],
+ ['G4','Billing-unit mismatch','Most indicators assume token telemetry, but some assistants meter by credits or requests.','State which indicators still hold when the unit is credits or requests, and which need a proxy.'],
+ ['G5','Cache-adjusted history cost','"Cost grows with the square of the steps" overstates cost when caching works, because history is re-read at about a tenth of the price.','Keep the quadratic wording for tokens processed only; name cache expiry (idle sessions, approval gates) and compaction as the real cost spikes.']];
+function renderMech(){
+  const V={Strong:'g',Covered:'b',Thin:'a'};
+  const html=`<div class="tscroll"><table class="tbl"><thead><tr><th>Mechanism</th><th>Where the framework covers it</th><th>Coverage</th></tr></thead><tbody>${MECH_MAP.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td><td><span class="badge ${V[r[2]]}">${r[2]}</span>${r[3]?`<br><span class="tiny muted">${esc(r[3])}</span>`:''}</td></tr>`).join('')}</tbody></table></div>
+   <p class="tiny muted" style="margin-top:6px">Coverage reflects what this framework contains today. Assistant product details such as limits, defaults and pricing change quickly; verify before quoting.</p>
+   <h3 style="margin-top:18px">Where the tools fit next to each other</h3>
+   <div class="tscroll"><table class="tbl"><thead><tr><th>Tool</th><th>Layer it optimizes</th></tr></thead><tbody>${MECH_TOOLS.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td></tr>`).join('')}</tbody></table></div>
+   <h3 style="margin-top:18px">Gaps to close, in priority order</h3>
+   <div class="grid g2">${MECH_GAPS.map(g=>`<article class="card"><h3><span class="badge a">${g[0]}</span> ${esc(g[1])}</h3><p class="small"><b>Gap:</b> ${esc(g[2])}</p><p class="small"><b>Fix:</b> ${esc(g[3])}</p></article>`).join('')}</div>`;
+  ['1','2'].forEach(n=>{$('#mechBody'+n).innerHTML=html});
+}
+
+/* ---------- PAGE 2: BASICS (reuses page 1 data) ---------- */
+let lad2=0,kp2='Cost';
+function renderLadder2(){
+  $('#ladder2').innerHTML=LADDER.map((r,i)=>`<button class="tile" aria-pressed="${i===lad2}" data-i="${i}"><b>${i+1}. ${r[0]}</b><small>${esc(r[2])}</small></button>`).join('');
+  const r=LADDER[lad2];$('#ladderDetail2').innerHTML=`<b>${r[0]}: ${esc(r[1])}</b><p class="small" style="margin-top:4px">${esc(r[3])}</p><p class="small muted">Techniques: ${esc(r[4])}</p>`;
+}
+$('#ladder2').onclick=e=>{const b=e.target.closest('.tile');if(b){lad2=+b.dataset.i;renderLadder2()}};
+function renderKpi2(){
+  chipsFrom($('#kpiTabs2'),Object.keys(KPI).map(k=>[k,k]),kp2,v=>{kp2=v;renderKpi2()},'aria-selected');
+  $('#kpiBody2').innerHTML=`<ul style="list-style:none;margin:0">${KPI[kp2].map(x=>`<li style="padding:6px 0;border-bottom:1px solid var(--border)"><b>${esc(x[0])}</b><br><span class="small muted">${esc(x[1])}</span></li>`).join('')}</ul>`;
+}
+function renderBasics2(){
+  $('#growthChart2').innerHTML=$('#growthChart').innerHTML;$('#growthStats2').innerHTML=$('#growthStats').innerHTML;
+  $('#priceChart2').innerHTML=$('#priceChart').innerHTML;
+  renderLadder2();renderKpi2();
+}
+
+/* ---------- INIT ---------- */
+buildGrowthCtl();renderPrice();renderLadder();renderLoop();renderLife();renderCatalog();renderValue();buildRoi();renderKpi();renderMat();renderAdopt();renderTrust();
+renderBench();renderStack();renderAdlc();renderCalc();renderPractices();renderScenario();renderMech();renderBasics2();
+if(location.hash==='#p2')setPage('p2');
+</script>
+</body>
+</html>
