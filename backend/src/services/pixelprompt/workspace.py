@@ -5,10 +5,7 @@ from urllib.parse import urlparse
 
 from src.config.settings import settings
 
-IGNORED_DIRS = {
-    ".git", "node_modules", "venv", ".venv", "__pycache__", "dist", "build",
-    ".next", ".idea", ".vscode", "graphify-out", "code-review-graph", ".mypy_cache", ".pytest_cache", "target",
-}
+IGNORED_DIRS = {"node_modules", ".vscode"}
 
 
 CODE_EXTS = {
@@ -21,15 +18,42 @@ CODE_NAMES = {"Dockerfile", "Makefile", "requirements.txt", "go.mod", "Gemfile",
 SKIP_NAMES = {"package-lock.json", "yarn.lock", "pnpm-lock.yaml", "poetry.lock", "Cargo.lock"}
 MAX_UPLOAD_FILE_BYTES = 1_000_000
 
+# Images, PDFs and .docx aren't code, but they're still real repo content (diagrams, design docs,
+# READMEs that ship as PDF) and are rendered via document_renderer instead of as a text page.
+DOCUMENT_EXTS = {".pdf", ".docx", ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".webp"}
+MAX_UPLOAD_DOCUMENT_BYTES = 20_000_000
+
 
 def is_code_file(rel: str, size: int = 0) -> bool:
-    """Only real source/config/doc files are analyzed; images, binaries, lockfiles, bundles are not."""
+    """Only real source/config/doc files are analyzed; binaries, lockfiles, bundles are not."""
     name = PurePosixPath(rel.replace("\\", "/")).name
     if name in SKIP_NAMES or name.endswith((".min.js", ".min.css", ".map")):
         return False
     if size > MAX_UPLOAD_FILE_BYTES:
         return False
     return name in CODE_NAMES or PurePosixPath(name).suffix.lower() in CODE_EXTS
+
+
+def is_document_path(rel: str) -> bool:
+    """Extension-only check (no size limit) - use when the file's size isn't on hand."""
+    return PurePosixPath(rel.replace("\\", "/")).suffix.lower() in DOCUMENT_EXTS
+
+
+def is_document_file(rel: str, size: int = 0) -> bool:
+    """Image/PDF/.docx files, handled separately by document_renderer (not as a text page)."""
+    if size > MAX_UPLOAD_DOCUMENT_BYTES:
+        return False
+    return is_document_path(rel)
+
+
+MAX_UPLOAD_ANY_BYTES = 50_000_000  # per-file safety ceiling for the upload itself
+
+
+def is_allowed_upload_file(rel: str, size: int = 0) -> bool:
+    """Every real file is accepted at upload time (lockfiles, csv/txt, images, PDFs, .docx, etc.);
+    only a per-file size ceiling applies here. `is_code_file`/`is_document_file` still decide how a
+    given file gets rendered once it's in the workspace, not whether it's let in."""
+    return size <= MAX_UPLOAD_ANY_BYTES
 
 
 GRAPH_DIR = "code-review-graph"  # where the graph lives inside the repo (renamed from Graphify's graphify-out)
@@ -111,7 +135,7 @@ def save_upload(files: list[tuple[str, bytes]], dest: Path) -> None:
             raise WorkspaceError(f"Unsafe path in upload: {rel}")
         if any(part in IGNORED_DIRS - GRAPH_DIRS for part in posix.parts):
             continue
-        if not is_code_file(rel, len(data)):
+        if not is_allowed_upload_file(rel, len(data)):
             continue
         total += len(data)
         if total > settings.max_repo_mb * 1024 * 1024:
@@ -157,8 +181,13 @@ def iter_repo_files(repo: Path):
             yield Path(dirpath) / f
 
 
-def build_tree(repo: Path, limit: int = 6000) -> list[dict]:
+def build_tree(repo: Path, limit: int | None = None) -> list[dict]:
+    """Full repo tree, depth-first. `limit` bounds total nodes against runaway repos; it defaults
+    to the same cap already enforced at ingestion (check_repo_limits), so nothing that was let into
+    the workspace gets silently dropped here - a low, independent cap would starve later siblings
+    (e.g. root-level files) whenever an earlier directory alone used up the whole budget."""
     counter = [0]
+    limit = limit if limit is not None else settings.max_repo_files
 
     def walk(directory: Path) -> list[dict]:
         nodes: list[dict] = []
