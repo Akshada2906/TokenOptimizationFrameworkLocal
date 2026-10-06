@@ -28,6 +28,32 @@ def _ready(sid: str) -> Session:
     return s
 
 
+@router.get("", response_model=list[SessionStatus])
+def list_sessions():
+    from src.services.pixelprompt.session_store import _sessions
+    # Map to SessionStatus dicts
+    return [
+        {
+            "session_id": s.id,
+            "status": s.status,
+            "error": s.error,
+            "stats": s.stats,
+            "source": s.source
+        }
+        for s in _sessions.values()
+    ]
+
+
+@router.delete("/{sid}")
+def delete_session(sid: str):
+    from src.services.pixelprompt.session_store import _sessions
+    import shutil
+    s = _sessions.pop(sid, None)
+    if s:
+        shutil.rmtree(s.root, ignore_errors=True)
+    return {"status": "deleted"}
+
+
 @router.post("", response_model=SessionCreated)
 def create_from_url(body: CreateSessionRequest, tasks: BackgroundTasks):
     try:
@@ -102,6 +128,18 @@ def read_file(sid: str, path: str):
         return FileContent(path=path, content=target.read_text(encoding="utf-8"))
     except UnicodeDecodeError:
         raise HTTPException(415, "Binary file.")
+
+
+@router.get("/{sid}/raw")
+def read_raw_file(sid: str, path: str):
+    s = _session(sid)
+    try:
+        target = safe_repo_path(s.repo_dir, path)
+    except WorkspaceError as e:
+        raise HTTPException(400, str(e))
+    if not target.is_file():
+        raise HTTPException(404, "File not found.")
+    return FileResponse(target)
 
 
 @router.get("/{sid}/context")

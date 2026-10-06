@@ -71,3 +71,20 @@ def render_code_images(repo: Path, graph: Graph | None, out_dir: Path):
         texts.append((rel, text))
         included.append(rel)
     return entries, texts, included, omitted
+
+
+def index_code_files(repo: Path) -> list[str]:
+    """Every file in the repo (outside ignored/vendored dirs), by path relative to it."""
+    out = []
+    for p in iter_repo_files(repo):
+        rel = str(p.relative_to(repo))
+        try:
+            size = p.stat().st_size
+        except OSError:
+            continue
+        if not size:
+            continue
+        if any(part in IGNORED_DIRS for part in p.relative_to(repo).parts):
+            continue
+        out.append(rel)
+    return out

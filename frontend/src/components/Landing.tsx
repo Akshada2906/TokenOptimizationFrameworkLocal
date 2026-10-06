@@ -82,39 +82,12 @@ export default function Landing({ onReady }: { onReady: (id: string) => void }) 
   return (
     <div className="landing">
       <div className="landing-card">
-        <h1>RepoGraph</h1>
+        <h1>Token Optimization</h1>
         <p className="tagline">
           Chat with any codebase for a fraction of the tokens. Your repo is analyzed once into a
           dependency graph, then rendered as PixelPrompt images the assistant reads instead of raw
           source.
         </p>
-
-        <form
-          className="url-row"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (url.trim()) start(() => api.createFromUrl(url.trim()));
-          }}
-        >
-          <input
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://github.com/owner/repo"
-            disabled={busy}
-          />
-          <button type="submit" disabled={busy || !url.trim()}>
-            Analyze
-          </button>
-        </form>
-
-        {canPickFolder() && (
-          <>
-            <div className="or">or pick a project folder (code-review-graph/ is saved inside it)</div>
-            <button disabled={busy} onClick={pickFolder}>
-              Pick project folder
-            </button>
-          </>
-        )}
 
         <div className="or">or a folder on this machine (code-review-graph/ is created inside it)</div>
         <form

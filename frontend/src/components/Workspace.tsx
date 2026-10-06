@@ -55,7 +55,7 @@ export default function Workspace({ sessionId, onExit }: { sessionId: string; on
         </Panel>
         <PanelResizeHandle className="handle" />
         <Panel defaultSize={42} minSize={20}>
-          <CodeViewer path={openPath} content={content} error={fileError} />
+          <CodeViewer path={openPath} content={content} error={fileError} sessionId={sessionId} />
         </Panel>
         <PanelResizeHandle className="handle" />
         <Panel defaultSize={38} minSize={22}>
