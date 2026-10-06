@@ -150,7 +150,15 @@ def answer(session: Session, message: str, open_file: str | None) -> dict:
     sent_text_tokens = 0  # tokens spent on content sent as plain text
 
     # Graph/architecture/wiki pages only for structural questions (or when nothing specific matched).
-    # Each unit is sent as whichever is cheaper: its rendered image(s) or its plain text.
+    # Rendered JIT here if not already rendered during upload.
+    if sel.include_grounding and session.grounding_combined and not any(i["kind"] == "context" for i in session.images):
+        grounding_dir = ctx / "grounding"
+        grounding_dir.mkdir(parents=True, exist_ok=True)
+        paths = render_text_pages(session.grounding_combined, "repo grounding context", grounding_dir, 
+                                  "grounding", "config", settings.max_grounding_pages - len(session.images))
+        for p in paths:
+            session.images.append(_used(session, p, "context", f"grounding pages ({session.grounding_titles})"))
+            
     grounding_parts: list[types.Part] = []
     pages = session.images
     if sel.include_grounding and pages:

@@ -25,3 +25,6 @@ def index_code_files(repo: Path) -> list[str]:
             continue
         out.append(rel)
     return out
+
+
+

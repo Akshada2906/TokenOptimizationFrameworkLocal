@@ -11,17 +11,30 @@ export default function CodeViewer({
   path,
   content,
   error,
+  sessionId,
 }: {
   path: string | null;
   content: string;
   error: string | null;
+  sessionId: string;
 }) {
   const ext = path?.split(".").pop()?.toLowerCase() ?? "";
+  const isImageFile = ["jpg", "jpeg", "png", "gif", "svg", "webp"].includes(ext);
+  const imageUrl = path ? `/api/sessions/${sessionId}/raw?path=${encodeURIComponent(path)}` : "";
+
   return (
-    <div className="pane editor">
+    <div className="pane editor" style={{ display: "flex", flexDirection: "column" }}>
       <div className="pane-title">{path ?? "Editor"}</div>
       {!path ? (
         <div className="empty">Open a file to view it. The assistant sees the open file when you chat.</div>
+      ) : isImageFile ? (
+        <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", padding: "16px", overflow: "hidden" }}>
+          <img 
+            src={imageUrl} 
+            alt={path} 
+            style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
+          />
+        </div>
       ) : error ? (
         <div className="empty">{error}</div>
       ) : (

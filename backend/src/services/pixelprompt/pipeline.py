@@ -92,13 +92,11 @@ def _analyze_and_render(session: Session) -> None:
         images.append(_entry(dest, "diagram", "dependency diagram", ctx))
 
     # Gemini charges a flat ~1k tokens per image regardless of size, so pack every text source
-    # into one document and render it as few, full pages as possible.
+    # into one document. We no longer render them here; they are rendered JIT in chat.py on the
+    # first structural query.
     combined = "\n\n".join(f"=== {title} ===\n{_squeeze(text)}" for title, _k, text, _m, _c in sources)
-    pages = render_text_pages(combined, "repo grounding context", grounding_dir, "grounding",
-                              "config", settings.max_grounding_pages - len(images))
-    titles = ", ".join(t for t, *_ in sources)
-    for p in pages:
-        images.append(_entry(p, "context", f"grounding pages ({titles})", ctx))
+    session.grounding_combined = combined
+    session.grounding_titles = ", ".join(t for t, *_ in sources)
     # Every code file is indexed (not rendered yet): the assistant can ask for any of them, and
     # chat.answer() renders just the ones a question actually selects, on demand.
     session.code_files = index_code_files(repo)
@@ -116,6 +114,7 @@ def _analyze_and_render(session: Session) -> None:
         "raw_repo_tokens_est": raw_tokens,
         "graph_dir": str(session.graph_dir) if session.graph_dir else None,
         "code_files": len(session.code_files),
+        "code_files_omitted": 0,
         "notes": result.notes,
         "has_diagram_svg": (ctx / "diagrams" / "dependencies.svg").exists(),
     }

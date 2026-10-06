@@ -136,6 +136,8 @@ export const api = {
     ),
   graphFileUrl: (id: string, path: string) => `${base}/${id}/graph-file?path=${encodeURIComponent(path)}`,
 
+  getSessions: () => fetch(`${base}/`).then((r) => json<SessionStatus[]>(r)),
+  deleteSession: (id: string) => fetch(`${base}/${id}`, { method: "DELETE" }),
   status: (id: string) => fetch(`${base}/${id}`).then((r) => json<SessionStatus>(r)),
   tree: (id: string) => fetch(`${base}/${id}/tree`).then((r) => json<TreeNode[]>(r)),
   file: (id: string, path: string) =>
