@@ -34,6 +34,7 @@ export interface UsedImage {
   text_tokens?: number;
   image_tokens_avoided?: number;
   file?: string;
+  files?: string[]; // set instead of `file` when several files share one dense image
   page?: number;
   pages?: number;
   reason?: string;
@@ -68,21 +69,13 @@ async function json<T>(res: Response): Promise<T> {
 }
 
 const base = "/api/sessions";
-const CODE_EXTS =
-  ".py .js .jsx .ts .tsx .mjs .cjs .java .go .rs .rb .php .cs .c .h .cc .cpp .hpp .kt .swift .scala .sh .bash .sql " +
-  ".html .css .scss .vue .svelte .md .mdx .json .yml .yaml .toml .ini .cfg .xml .gradle .proto .graphql";
+// Only node_modules/.vscode are skipped; everything else is sent as-is and the backend decides
+// how to render it (mirrors workspace.py's IGNORED_DIRS).
+const SKIP_DIR = /(^|\/)(node_modules|\.vscode)(\/|$)/;
+const MAX_FILE_BYTES = 50_000_000;
 
-const SKIP_DIR = /(^|\/)(\.git|node_modules|venv|\.venv|__pycache__|dist|build|\.next|target|\.idea|graphify-out|code-review-graph)(\/|$)/;
-const NAMES = new Set(["Dockerfile", "Makefile", "requirements.txt", "go.mod", "Gemfile", ".env.example"]);
-const LOCKS = /(^|\/)(package-lock\.json|yarn\.lock|pnpm-lock\.yaml|poetry\.lock|Cargo\.lock)$|\.(min\.js|min\.css|map)$/;
-const EXTS = new Set(CODE_EXTS.split(" "));
-
-/** Only real code/config/doc files are sent (mirrors backend is_code_file). */
 export function wantFile(rel: string, size: number): boolean {
-  if (SKIP_DIR.test(rel) || LOCKS.test(rel) || size > 1_000_000) return false;
-  const base = rel.split("/").pop() as string;
-  const ext = base.includes(".") ? "." + base.split(".").pop()!.toLowerCase() : "";
-  return NAMES.has(base) || EXTS.has(ext);
+  return !SKIP_DIR.test(rel) && size <= MAX_FILE_BYTES;
 }
 
 export interface GraphInfo {

@@ -19,8 +19,7 @@ function TokenBreakdown({ s, images, sessionId }: { s: ChatStats; images: UsedIm
   images = images.filter((i) => i.source !== "text");
   const graph = images.filter((i) => i.source === "grounding").length;
   const code = images.filter((i) => i.source === "code");
-  const codeFiles = new Set(code.map((i) => i.file)).size;
-  const fresh = images.filter((i) => i.source === "file").length;
+  const codeFiles = new Set(code.flatMap((i) => i.files ?? (i.file ? [i.file] : []))).size;
   return (
     <div className="tokens">
       {images.length > 0 && <div className="compare-line">
@@ -42,7 +41,6 @@ function TokenBreakdown({ s, images, sessionId }: { s: ChatStats; images: UsedIm
       </div>
       <div className="parts">
         {graph} graph/docs pages · {code.length} code images from {codeFiles} files
-        {fresh > 0 && ` · ${fresh} fresh file pages`}
       </div>
       {asText.length > 0 && (
         <div className="text-note">
@@ -62,7 +60,7 @@ function TokenBreakdown({ s, images, sessionId }: { s: ChatStats; images: UsedIm
           <div className="picked-grid">
             {images.map((im, i) => {
               const url = api.contextImageUrl(sessionId, im.name);
-              const label = im.file ?? im.title;
+              const label = im.files ? im.files.join(", ") : im.file ?? im.title;
               return (
                 <a key={i} className="picked-item" href={url} target="_blank" rel="noreferrer" title={im.reason}>
                   <img src={url} alt={label} loading="lazy" />

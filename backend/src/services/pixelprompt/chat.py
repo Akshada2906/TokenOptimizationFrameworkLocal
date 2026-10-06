@@ -9,10 +9,11 @@ from src.config.settings import settings
 from src.helpers.pixel_renderer import estimate_image_tokens, image_size, render_text_pages
 from src.prompts import prompt
 from src.services.pixelprompt.context_router import select
+from src.services.pixelprompt.document_renderer import render_document_to_images
 from src.services.pixelprompt.graph import graph_slice
 from src.services.pixelprompt.session_store import Session
 from src.services.pixelprompt.tokens import count_images, count_text, modality_tokens
-from src.services.pixelprompt.workspace import WorkspaceError, safe_repo_path
+from src.services.pixelprompt.workspace import WorkspaceError, is_document_path, safe_repo_path
 
 log = logging.getLogger(__name__)
 _client: genai.Client | None = None
@@ -36,25 +37,54 @@ def _image_part(path) -> types.Part:
     return types.Part.from_bytes(data=path.read_bytes(), mime_type="image/png")
 
 
-def render_open_file(session: Session, rel: str):
-    """Render just the open file on demand (cached per path+mtime). Returns (paths, text)."""
-    try:
-        target = safe_repo_path(session.repo_dir, rel)
-    except WorkspaceError as e:
-        raise ChatError(str(e))
-    if not target.is_file():
-        raise ChatError(f"File not found: {rel}")
-    try:
-        text = target.read_text(encoding="utf-8")
-    except UnicodeDecodeError:
-        raise ChatError("Binary files can't be sent to the assistant.")
-    key = hashlib.sha1(f"{rel}:{target.stat().st_mtime_ns}".encode()).hexdigest()[:12]
-    out_dir = session.context_dir / "files"
-    existing = sorted(out_dir.glob(f"{key}_*.png")) if out_dir.exists() else []
-    if not existing:
-        existing = render_text_pages(text, rel, out_dir, key, "code", settings.max_file_pages,
-                                     numbered=True, font_px=settings.pixel_file_font_px)
-    return existing
+def render_selected_files(session: Session, files: list[str]) -> tuple[list, str, str, list[tuple[str, list]]]:
+    """Pack every selected code/text file into as few dense PixelPrompt pages as possible: Gemini
+    charges a flat ~1k tokens per image regardless of its content, so several small files sharing
+    one image beats rendering (and charging for) one image per file. Cached by the exact file set
+    + mtimes.
+
+    Image/PDF/.docx files are rendered separately, one file at a time, via document_renderer and
+    always sent as images rather than packed in with the code files: a PDF/.docx page can embed a
+    genuine diagram, and flattening it into the same dense-text render as the code files would lose
+    it, so each one keeps its own page sequence (dense text pages interleaved with real diagram
+    pages, in the document's original order).
+
+    Returns (text_paths, combined text, cache key, [(doc_file, [image paths]), ...]).
+    """
+    doc_files = [f for f in files if is_document_path(f)]
+    text_files = [f for f in files if f not in doc_files]
+
+    parts, sig = [], []
+    for f in text_files:
+        try:
+            target = safe_repo_path(session.repo_dir, f)
+            mtime = target.stat().st_mtime_ns
+        except (WorkspaceError, OSError) as e:
+            raise ChatError(str(e))
+        parts.append(f"FILE: {f}\n{_numbered(_source_text(session, f))}")
+        sig.append(f"{f}:{mtime}")
+    combined = "\n\n".join(parts)
+    key = hashlib.sha1("|".join(sig).encode()).hexdigest()[:12]
+    text_paths: list = []
+    if text_files:
+        out_dir = session.context_dir / "selected"
+        existing = sorted(out_dir.glob(f"{key}_*.png")) if out_dir.exists() else []
+        text_paths = existing or render_text_pages(
+            combined, "selected files", out_dir, key, "code",
+            settings.max_file_pages * max(1, len(text_files)), font_px=settings.pixel_file_font_px)
+
+    doc_results: list[tuple[str, list]] = []
+    for f in doc_files:
+        try:
+            target = safe_repo_path(session.repo_dir, f)
+            dkey = hashlib.sha1(f"{f}:{target.stat().st_mtime_ns}".encode()).hexdigest()[:12]
+        except (WorkspaceError, OSError) as e:
+            raise ChatError(str(e))
+        doc_dir = session.context_dir / "documents" / dkey
+        existing = sorted(doc_dir.glob("*.png")) if doc_dir.exists() else []
+        doc_results.append((f, existing or render_document_to_images(target, doc_dir, dkey)))
+
+    return text_paths, combined, key, doc_results
 
 
 def _generate_with_retry(contents, config, attempts: int = 4):
@@ -89,9 +119,14 @@ def _costs(session: Session, key: str, text: str, paths: list) -> tuple[int, int
 
 def _source_text(session: Session, f: str) -> str:
     text = dict(session.grounding_texts).get(f)
-    if text is None:
-        text = safe_repo_path(session.repo_dir, f).read_text(encoding="utf-8")
-    return text
+    if text is not None:
+        return text
+    try:
+        return safe_repo_path(session.repo_dir, f).read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        # Not UTF-8 text and not an image/PDF/.docx (those go through document_renderer instead) -
+        # e.g. a .zip or .xlsx. Say so rather than crashing the whole combined render.
+        return "(binary file - no text preview available)"
 
 
 def _text_entry(kind: str, title: str, file: str | None, tokens: int, img_tokens: int, reason: str) -> dict:
@@ -108,7 +143,7 @@ def _used(session: Session, path, kind: str, title: str) -> dict:
 
 def answer(session: Session, message: str, open_file: str | None) -> dict:
     ctx = session.context_dir
-    code_files = {i["file"] for i in session.images if i["kind"] == "code"}
+    code_files = set(session.code_files)
     sel = select(message, open_file, session.graph, code_files)
     images_used: list[dict] = []  # every unit sent: an image, or a text entry when text was cheaper
     as_image_text_tokens = 0  # text cost of the content that WAS sent as images (for the comparison)
@@ -125,11 +160,11 @@ def answer(session: Session, message: str, open_file: str | None) -> dict:
             session.images.append(_used(session, p, "context", f"grounding pages ({session.grounding_titles})"))
             
     grounding_parts: list[types.Part] = []
-    pages = [img for img in session.images if img["kind"] != "code"]
+    pages = session.images
     if sel.include_grounding and pages:
         manifest = ", ".join(f"{i+1}={img['title']}" for i, img in enumerate(pages))
         grounding_parts = [types.Part(text=prompt.GROUNDING_INTRO.format(manifest=manifest))]
-        body = "\n\n".join(f"FILE: {t}\n{b}" for t, b in session.grounding_texts if t not in code_files)
+        body = "\n\n".join(f"FILE: {t}\n{b}" for t, b in session.grounding_texts)
         img_t, txt_t = _costs(session, "__grounding__", body, [ctx / i["name"] for i in pages])
         if txt_t <= img_t:
             grounding_parts.append(types.Part(text=body))
@@ -142,30 +177,39 @@ def answer(session: Session, message: str, open_file: str | None) -> dict:
                 grounding_parts.append(_image_part(ctx / img["name"]))
                 images_used.append({**img, "source": "grounding", "reason": "structural question"})
 
-    # Only the files picked through the graph, each as an image set or as text, whichever is cheaper.
+    # Files picked through the graph, packed into as few dense images as possible and sent as one
+    # unit (image or text, whichever is cheaper) - same reasoning as the grounding block above.
+    # Image/PDF/.docx files are not part of that cost comparison: they're always sent as images,
+    # since there's no plain-text equivalent that preserves their diagrams.
     user_parts: list[types.Part] = []
     if sel.files:
         user_parts.append(types.Part(text=prompt.SELECTED_INTRO.format(files=", ".join(sel.files))))
-    for f in sel.files:
-        imgs = [i for i in session.images if i["kind"] == "code" and i["file"] == f]
-        if imgs:
-            paths = [ctx / i["name"] for i in imgs]
-        else:  # e.g. the open file was over the per-file cap or not a rendered type
-            paths = render_open_file(session, f)
-            imgs = [{**_used(session, p, "file", f), "file": f} for p in paths]
-        text = f"FILE: {f}\n{_numbered(_source_text(session, f))}"
-        img_t, txt_t = _costs(session, f, text, paths)
-        if txt_t <= img_t:
-            user_parts.append(types.Part(text=text))
-            sent_text_tokens += txt_t
-            images_used.append(_text_entry("code", f, f, txt_t, img_t, sel.reasons[f]))
-            continue
-        as_image_text_tokens += txt_t
-        for img, p in zip(imgs, paths):
-            user_parts.append(types.Part(text=prompt.CODE_IMAGE_LABEL.format(
-                path=f, page=img.get("page", 1), pages=img.get("pages", len(paths)))))
-            user_parts.append(_image_part(p))
-            images_used.append({**img, "source": "code" if "page" in img else "file", "reason": sel.reasons[f]})
+        paths, combined, key, doc_results = render_selected_files(session, sel.files)
+        doc_file_set = {f for f, _ in doc_results}
+        text_files = [f for f in sel.files if f not in doc_file_set]
+        if text_files:
+            img_t, txt_t = _costs(session, key, combined, paths)
+            manifest = ", ".join(text_files)
+            reason = "; ".join(f"{f}: {sel.reasons[f]}" for f in text_files)
+            if txt_t <= img_t:
+                user_parts.append(types.Part(text=combined))
+                sent_text_tokens += txt_t
+                images_used.append(_text_entry("code", manifest, None, txt_t, img_t, reason))
+            else:
+                as_image_text_tokens += txt_t
+                for i, p in enumerate(paths, start=1):
+                    user_parts.append(types.Part(text=prompt.CODE_IMAGE_LABEL.format(
+                        path=manifest, page=i, pages=len(paths))))
+                    user_parts.append(_image_part(p))
+                    images_used.append({**_used(session, p, "code", manifest), "files": text_files,
+                                        "source": "code", "page": i, "pages": len(paths), "reason": reason})
+        for f, doc_paths in doc_results:
+            for i, p in enumerate(doc_paths, start=1):
+                user_parts.append(types.Part(text=prompt.CODE_IMAGE_LABEL.format(
+                    path=f, page=i, pages=len(doc_paths))))
+                user_parts.append(_image_part(p))
+                images_used.append({**_used(session, p, "document", f), "files": [f], "source": "document",
+                                    "page": i, "pages": len(doc_paths), "reason": sel.reasons.get(f, "selected file")})
     if session.graph is not None:
         for f in sel.files:
             user_parts.append(types.Part(text=prompt.GRAPH_SLICE_TEMPLATE.format(
