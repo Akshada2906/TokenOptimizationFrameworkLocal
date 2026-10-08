@@ -20,6 +20,8 @@ function TokenBreakdown({ s, images, sessionId }: { s: ChatStats; images: UsedIm
   const graph = images.filter((i) => i.source === "grounding").length;
   const code = images.filter((i) => i.source === "code");
   const codeFiles = new Set(code.flatMap((i) => i.files ?? (i.file ? [i.file] : []))).size;
+  const [showPickedImages, setShowPickedImages] = useState(false);
+
   return (
     <div className="tokens">
       {images.length > 0 && <div className="compare-line">
@@ -56,25 +58,80 @@ function TokenBreakdown({ s, images, sessionId }: { s: ChatStats; images: UsedIm
       )}
       {images.length > 0 && (
         <div className="picked">
-          <div className="picked-title">Images sent to the model</div>
-          <div className="picked-grid">
-            {images.map((im, i) => {
-              const url = api.contextImageUrl(sessionId, im.name);
-              const label = im.files ? im.files.join(", ") : im.file ?? im.title;
-              return (
-                <a key={i} className="picked-item" href={url} target="_blank" rel="noreferrer" title={im.reason}>
-                  <img src={url} alt={label} loading="lazy" />
-                  <span className="picked-name">
-                    {label}
-                    {im.pages && im.pages > 1 ? ` (${im.page}/${im.pages})` : ""}
-                  </span>
-                  {im.reason && <span className="picked-reason">{im.reason}</span>}
-                </a>
-              );
-            })}
+          <div className="picked-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>Images sent to the model</span>
+            <button 
+              onClick={() => setShowPickedImages(!showPickedImages)}
+              style={{
+                fontSize: '11px',
+                padding: '2px 8px',
+                background: 'transparent',
+                border: '1px solid var(--border)',
+                color: 'var(--text)',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              {showPickedImages ? 'Hide Images' : 'Show Images'}
+            </button>
           </div>
+          {showPickedImages && (
+            <div className="picked-grid">
+              {images.map((im, i) => {
+                const url = api.contextImageUrl(sessionId, im.name);
+                const label = im.files ? im.files.join(", ") : im.file ?? im.title;
+                return (
+                  <a key={i} className="picked-item" href={url} target="_blank" rel="noreferrer" title={im.reason}>
+                    <img src={url} alt={label} loading="lazy" />
+                    <span className="picked-name">
+                      {label}
+                      {im.pages && im.pages > 1 ? ` (${im.page}/${im.pages})` : ""}
+                    </span>
+                    {im.reason && <span className="picked-reason">{im.reason}</span>}
+                  </a>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
+    </div>
+  );
+}
+
+function MessageContent({ content }: { content: string }) {
+  const [showImages, setShowImages] = useState(false);
+  // Simple check for markdown images
+  const hasImages = content.includes("![");
+
+  return (
+    <div className="msg-content">
+      {hasImages && (
+        <button 
+          onClick={() => setShowImages(!showImages)} 
+          style={{ 
+            marginBottom: '8px', 
+            fontSize: '12px', 
+            padding: '4px 8px', 
+            borderRadius: '4px',
+            background: 'var(--panel-2)',
+            border: '1px solid var(--border)',
+            color: 'var(--text)'
+          }}
+        >
+          {showImages ? "Hide Generated Images" : "Show Generated Images"}
+        </button>
+      )}
+      <ReactMarkdown
+        components={{
+          img: ({ node, ...props }) => {
+            if (!showImages) return null;
+            return <img {...props} style={{ maxWidth: '100%', borderRadius: '4px', marginTop: '8px' }} />;
+          }
+        }}
+      >
+        {content}
+      </ReactMarkdown>
     </div>
   );
 }
@@ -119,7 +176,11 @@ export default function Chat({ sessionId, openFile }: { sessionId: string; openF
         )}
         {msgs.map((m, i) => (
           <div key={i} className={`msg ${m.role} ${m.error ? "err" : ""}`}>
-            {m.role === "assistant" ? <ReactMarkdown>{m.content}</ReactMarkdown> : m.content}
+            {m.role === "assistant" ? (
+              <MessageContent content={m.content} />
+            ) : (
+              m.content
+            )}
             {m.stats && <TokenBreakdown s={m.stats} images={m.images ?? []} sessionId={sessionId} />}
           </div>
         ))}
