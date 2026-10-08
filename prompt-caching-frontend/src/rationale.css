@@ -1,0 +1,18 @@
+.rationale {
+  border-top: 1px solid #2a3140;
+  color: #aeb7c6;
+  font-size: 14px;
+  line-height: 1.45;
+  margin-top: 18px;
+  padding-top: 14px;
+}
+
+.rationale b {
+  color: #e4e8f0;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.rationale ul { margin: 9px 0 0; padding-left: 19px; }
+.rationale li + li { margin-top: 6px; }

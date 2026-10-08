@@ -1,6 +1,19 @@
 # Python >= 3.11
 
 fastapi==0.115.6
+starlette==0.41.3  # fastapi 0.115 breaks on starlette >= 0.42
 uvicorn[standard]==0.34.0
 pydantic==2.10.4
 pydantic-settings==2.7.1
+python-multipart
+python-dotenv
+google-genai
+instructor[google-genai]>=1.14.1
+Pillow
+pixelprompt
+networkx
+graphifyy
+reportlab
+pypdf
+pymupdf
+python-docx
