@@ -83,11 +83,6 @@ function TokenBreakdown({ s, images, sessionId }: { s: ChatStats; images: UsedIm
                 return (
                   <a key={i} className="picked-item" href={url} target="_blank" rel="noreferrer" title={im.reason}>
                     <img src={url} alt={label} loading="lazy" />
-                    <span className="picked-name">
-                      {label}
-                      {im.pages && im.pages > 1 ? ` (${im.page}/${im.pages})` : ""}
-                    </span>
-                    {im.reason && <span className="picked-reason">{im.reason}</span>}
                   </a>
                 );
               })}

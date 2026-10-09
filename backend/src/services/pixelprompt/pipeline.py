@@ -64,7 +64,6 @@ def _analyze_and_render(session: Session) -> None:
     (ctx / "architecture.md").write_text(arch_md, encoding="utf-8")
     diagrams = render_diagrams(graph, ctx / "diagrams") if graph else []
 
-    session.status = "rendering"
     # (title, kind, text, max_pages, pixelprompt content type)
     sources: list[tuple[str, str, str, int, str]] = []
     sources.append(("architecture.md", "architecture", arch_md, 2, "prose"))
