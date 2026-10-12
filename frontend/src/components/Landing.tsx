@@ -2,11 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "../api";
 import { canPickFolder, pickProjectFolder, saveGraphInto } from "../folderAccess";
 
-const STAGES = ["cloning", "analyzing", "rendering", "saving", "ready"];
+const STAGES = ["cloning", "analyzing", "saving", "ready"];
 const LABELS: Record<string, string> = {
   cloning: "Cloning repository",
   analyzing: "Building dependency graph",
-  rendering: "Rendering PixelPrompt images",
   saving: "Saving code-review-graph into your folder",
   ready: "Ready",
 };
