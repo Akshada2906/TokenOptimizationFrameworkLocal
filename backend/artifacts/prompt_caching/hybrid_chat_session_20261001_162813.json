@@ -1,0 +1,11 @@
+{
+  "cache_name": "cachedContents/hi50d2sxzm8x1aesfmbqpzkl4l8ciqembd5m9jgo",
+  "model": "gemini-2.5-flash",
+  "manifest": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\hybrid_pdf_images\\4cb902686421_pages_1-100_100\\manifest.json",
+  "items": 100,
+  "context_tokens": 27143,
+  "created_at": "2026-10-01T10:58:13.352322+00:00",
+  "expires_at": "2026-10-01T11:58:13.352322+00:00",
+  "ttl_seconds": 3600,
+  "cache_creation_s": 5.573
+}

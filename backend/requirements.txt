@@ -15,3 +15,5 @@ networkx
 graphifyy
 reportlab
 pypdf
+pymupdf
+pdfplumber

@@ -1,0 +1,636 @@
+[
+  {
+    "pdf_page": 1,
+    "source_pages": [
+      1
+    ],
+    "item": 1,
+    "part": 1,
+    "type": "original_visual",
+    "bbox": [
+      154.71,
+      25.85,
+      287.42,
+      134.55
+    ],
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\page_001_item_001_visual.png",
+    "label": "PDF page 1, original visual 1"
+  },
+  {
+    "pdf_page": 1,
+    "source_pages": [
+      1
+    ],
+    "item": 2,
+    "part": 1,
+    "type": "original_visual",
+    "bbox": [
+      277.98,
+      35.68,
+      370.3,
+      124.73
+    ],
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\page_001_item_002_visual.png",
+    "label": "PDF page 1, original visual 2"
+  },
+  {
+    "pdf_page": 1,
+    "source_pages": [
+      1
+    ],
+    "item": 3,
+    "part": 1,
+    "type": "original_visual",
+    "bbox": [
+      39.15,
+      51.58,
+      178.41,
+      108.81
+    ],
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\page_001_item_003_visual.png",
+    "label": "PDF page 1, original visual 3"
+  },
+  {
+    "pdf_page": 1,
+    "source_pages": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "item": 1,
+    "part": 1,
+    "type": "pixelprompt_text",
+    "bbox": null,
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\batch_001_pages_001-006_01.png",
+    "label": "PDF pages 1-6, ordered text and extracted tables, part 1"
+  },
+  {
+    "pdf_page": 6,
+    "source_pages": [
+      6
+    ],
+    "item": 1,
+    "part": 1,
+    "type": "original_visual",
+    "bbox": [
+      57.05,
+      334.05,
+      438.78,
+      597.6
+    ],
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\page_006_item_001_visual.png",
+    "label": "PDF page 6, original visual 1"
+  },
+  {
+    "pdf_page": 6,
+    "source_pages": [
+      6,
+      7
+    ],
+    "item": 2,
+    "part": 1,
+    "type": "pixelprompt_text",
+    "bbox": null,
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\batch_002_pages_006-007_01.png",
+    "label": "PDF pages 6-7, ordered text and extracted tables, part 1"
+  },
+  {
+    "pdf_page": 8,
+    "source_pages": [
+      8
+    ],
+    "item": 1,
+    "part": 1,
+    "type": "original_visual",
+    "bbox": [
+      57.8,
+      36.9,
+      530.35,
+      365.54
+    ],
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\page_008_item_001_visual.png",
+    "label": "PDF page 8, original visual 1"
+  },
+  {
+    "pdf_page": 8,
+    "source_pages": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "item": 3,
+    "part": 1,
+    "type": "pixelprompt_text",
+    "bbox": null,
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\batch_003_pages_008-013_01.png",
+    "label": "PDF pages 8-13, ordered text and extracted tables, part 1"
+  },
+  {
+    "pdf_page": 14,
+    "source_pages": [
+      14
+    ],
+    "item": 1,
+    "part": 1,
+    "type": "original_visual",
+    "bbox": [
+      58.45,
+      38.4,
+      494.05,
+      262.63
+    ],
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\page_014_item_001_visual.png",
+    "label": "PDF page 14, original visual 1"
+  },
+  {
+    "pdf_page": 14,
+    "source_pages": [
+      14,
+      15,
+      16,
+      17
+    ],
+    "item": 4,
+    "part": 1,
+    "type": "pixelprompt_text",
+    "bbox": null,
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\batch_004_pages_014-017_01.png",
+    "label": "PDF pages 14-17, ordered text and extracted tables, part 1"
+  },
+  {
+    "pdf_page": 18,
+    "source_pages": [
+      18
+    ],
+    "item": 1,
+    "part": 1,
+    "type": "original_visual",
+    "bbox": [
+      80.6,
+      38.4,
+      487.1,
+      287.05
+    ],
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\page_018_item_001_visual.png",
+    "label": "PDF page 18, original visual 1"
+  },
+  {
+    "pdf_page": 18,
+    "source_pages": [
+      18,
+      19,
+      20,
+      21
+    ],
+    "item": 5,
+    "part": 1,
+    "type": "pixelprompt_text",
+    "bbox": null,
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\batch_005_pages_018-021_01.png",
+    "label": "PDF pages 18-21, ordered text and extracted tables, part 1"
+  },
+  {
+    "pdf_page": 21,
+    "source_pages": [
+      21
+    ],
+    "item": 1,
+    "part": 1,
+    "type": "original_visual",
+    "bbox": [
+      57.8,
+      477.79,
+      443.85,
+      699.02
+    ],
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\page_021_item_001_visual.png",
+    "label": "PDF page 21, original visual 1"
+  },
+  {
+    "pdf_page": 21,
+    "source_pages": [
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "item": 6,
+    "part": 1,
+    "type": "pixelprompt_text",
+    "bbox": null,
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\batch_006_pages_021-031_01.png",
+    "label": "PDF pages 21-31, ordered text and extracted tables, part 1"
+  },
+  {
+    "pdf_page": 21,
+    "source_pages": [
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "item": 6,
+    "part": 2,
+    "type": "pixelprompt_text",
+    "bbox": null,
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\batch_006_pages_021-031_02.png",
+    "label": "PDF pages 21-31, ordered text and extracted tables, part 2"
+  },
+  {
+    "pdf_page": 31,
+    "source_pages": [
+      31
+    ],
+    "item": 1,
+    "part": 1,
+    "type": "original_visual",
+    "bbox": [
+      57.8,
+      366.19,
+      470.35,
+      627.93
+    ],
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\page_031_item_001_visual.png",
+    "label": "PDF page 31, original visual 1"
+  },
+  {
+    "pdf_page": 31,
+    "source_pages": [
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55
+    ],
+    "item": 7,
+    "part": 1,
+    "type": "pixelprompt_text",
+    "bbox": null,
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\batch_007_pages_031-055_01.png",
+    "label": "PDF pages 31-55, ordered text and extracted tables, part 1"
+  },
+  {
+    "pdf_page": 31,
+    "source_pages": [
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55
+    ],
+    "item": 7,
+    "part": 2,
+    "type": "pixelprompt_text",
+    "bbox": null,
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\batch_007_pages_031-055_02.png",
+    "label": "PDF pages 31-55, ordered text and extracted tables, part 2"
+  },
+  {
+    "pdf_page": 31,
+    "source_pages": [
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55
+    ],
+    "item": 7,
+    "part": 3,
+    "type": "pixelprompt_text",
+    "bbox": null,
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\batch_007_pages_031-055_03.png",
+    "label": "PDF pages 31-55, ordered text and extracted tables, part 3"
+  },
+  {
+    "pdf_page": 55,
+    "source_pages": [
+      55
+    ],
+    "item": 1,
+    "part": 1,
+    "type": "original_visual",
+    "bbox": [
+      240.05,
+      96.5,
+      553.06,
+      168.98
+    ],
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\page_055_item_001_visual.png",
+    "label": "PDF page 55, original visual 1"
+  },
+  {
+    "pdf_page": 55,
+    "source_pages": [
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83
+    ],
+    "item": 8,
+    "part": 1,
+    "type": "pixelprompt_text",
+    "bbox": null,
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\batch_008_pages_055-083_01.png",
+    "label": "PDF pages 55-83, ordered text and extracted tables, part 1"
+  },
+  {
+    "pdf_page": 55,
+    "source_pages": [
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83
+    ],
+    "item": 8,
+    "part": 2,
+    "type": "pixelprompt_text",
+    "bbox": null,
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\batch_008_pages_055-083_02.png",
+    "label": "PDF pages 55-83, ordered text and extracted tables, part 2"
+  },
+  {
+    "pdf_page": 55,
+    "source_pages": [
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83
+    ],
+    "item": 8,
+    "part": 3,
+    "type": "pixelprompt_text",
+    "bbox": null,
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\batch_008_pages_055-083_03.png",
+    "label": "PDF pages 55-83, ordered text and extracted tables, part 3"
+  },
+  {
+    "pdf_page": 55,
+    "source_pages": [
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83
+    ],
+    "item": 8,
+    "part": 4,
+    "type": "pixelprompt_text",
+    "bbox": null,
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\batch_008_pages_055-083_04.png",
+    "label": "PDF pages 55-83, ordered text and extracted tables, part 4"
+  },
+  {
+    "pdf_page": 83,
+    "source_pages": [
+      83
+    ],
+    "item": 1,
+    "part": 1,
+    "type": "original_visual",
+    "bbox": [
+      51.83,
+      178.77,
+      535.22,
+      305.26
+    ],
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\page_083_item_001_visual.png",
+    "label": "PDF page 83, original visual 1"
+  },
+  {
+    "pdf_page": 83,
+    "source_pages": [
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100
+    ],
+    "item": 9,
+    "part": 1,
+    "type": "pixelprompt_text",
+    "bbox": null,
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\batch_009_pages_083-100_01.png",
+    "label": "PDF pages 83-100, ordered text and extracted tables, part 1"
+  },
+  {
+    "pdf_page": 83,
+    "source_pages": [
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100
+    ],
+    "item": 9,
+    "part": 2,
+    "type": "pixelprompt_text",
+    "bbox": null,
+    "image": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\ukets01_mrr_hybrid_dense_precheck\\batch_009_pages_083-100_02.png",
+    "label": "PDF pages 83-100, ordered text and extracted tables, part 2"
+  }
+]

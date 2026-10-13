@@ -163,4 +163,12 @@ header .spacer { flex: 1; }
 .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }.metric { display: flex; flex-direction: column; gap: 5px; }.metric span, .metric small { color: var(--muted); font-size: 12px; }.metric strong { font-size: 24px; }
 .cost-grid { margin-top: 0; }.cost-grid h3 { font-size: 29px; }.cost-grid > .card > p:not(.eyebrow) { color: var(--muted); margin-top: 0; font-size: 13px; }.cost-line { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--border); padding: 9px 0 0; margin-top: 9px; color: var(--muted); font-size: 13px; }.cost-line b { color: var(--text); }.cost-line.savings b { color: var(--good); }
 .estimate-note { color: var(--muted); font-size: 12px; line-height: 1.45; margin: 0; }
+.policy-actions, .mode-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.selected-file { display: flex; align-items: center; gap: 10px; }
+.cache-progress { color: #c7d2fe; background: #20264a; border-radius: 9px; padding: 12px; font-size: 13px; }
+.mode-tabs button { flex: 1; }
+.mode-tabs button.active { background: var(--accent); border: 1px solid var(--accent); }
+.policy-answer { line-height: 1.6; }
+.policy-answer > :first-child { margin-top: 0; }.policy-answer > :last-child { margin-bottom: 0; }
+.evidence-gaps { padding: 10px 12px; border-radius: 8px; background: #332812; color: #fde68a; }
 @media (max-width: 760px) { .policy-grid, .cost-grid { grid-template-columns: 1fr; }.metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.policy-header { padding: 14px 18px; }.policy-hero, .policy-grid, .policy-result, .policy-error { width: min(100% - 32px, 1120px); }.policy-hero { margin-left: 16px; padding-top: 28px; } }

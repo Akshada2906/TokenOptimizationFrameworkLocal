@@ -1,0 +1,42 @@
+{
+  "generated_at": "2026-10-01T08:54:29.191121+00:00",
+  "source_pdf": "C:\\Users\\anshu.lalwani\\Downloads\\20170001761.pdf",
+  "pages": [
+    206,
+    207
+  ],
+  "figure_pages": [
+    206
+  ],
+  "manifest": "C:\\Users\\anshu.lalwani\\OneDrive - Nitor Infotech Pvt. Ltd\\Desktop\\TokenOptimizationFramework\\backend\\artifacts\\prompt_caching\\hybrid_pdf_images\\3153ae2e53e2_pages_206-207\\manifest.json",
+  "items": 14,
+  "pixelprompt_text_images": 13,
+  "original_figure_images": 1,
+  "preparation_s": 0.34,
+  "model": "gemini-2.5-flash",
+  "question": "Trace how a decision issue and an analysis support request enter Figure 6.8-1. List the ordered activities. Name the three outgoing information products and the destination process for each.",
+  "context_tokens": 3827,
+  "direct": {
+    "answer": "A decision issue enters Figure 6.8-1 as \"Decision Need, Alternatives, Issues, or Problems and Supporting Data\" from \"All Technical Processes\". An analysis support request enters as \"Analysis Support Requests\" from the \"Technical Assessment Process\" (Figure 6.8-1, PDF page 206).\n\nThe ordered activities are:\n1.  Establish Guidelines to Determine Which Technical Issues Are Subject to a Formal Analysis/Evaluation Process\n2.  Define the Criteria for Evaluating Alternative Solutions\n3.  Identify Alternative Solutions to Address Decision Issues\n4.  Select Evaluation Methods and Tools\n5.  Evaluate Alternative Solutions with the Established Criteria and Selected Methods\n6.  Select Recommended Solutions from the Alternatives Based on the Evaluation Criteria\n7.  Report Analysis Results with Recommendations, Impacts and Corrective Actions\n8.  Capture Work Products from Decision Analysis Activities\n(Figure 6.8-1, PDF page 206)\n\nThe three outgoing information products and their destination processes are:\n1.  **Alternative Selection Recommendations and Impacts** to **All Technical Processes**\n2.  **Decision Support Recommendations and Impacts** to **Technical Assessment Process**\n3.  **Work Products from Decision Analysis** to **Technical Data Management Process**\n(Figure 6.8-1, PDF page 206)",
+    "latency_s": 4.85,
+    "prompt_tokens": 3925,
+    "cached_tokens": 0,
+    "new_input_tokens": 3925,
+    "output_tokens": 276
+  },
+  "cached": {
+    "answer": "Based on Figure 6.8-1 (PDF page 206):\n\nA decision issue enters the process as \"Decision Need, Alternatives, Issues, or Problems and Supporting Data\" from \"All Technical Processes\". An analysis support request enters as \"Analysis Support Requests\" from the \"Technical Assessment Process\".\n\nThe ordered activities are:\n1.  Establish Guidelines to Determine Which Technical Issues Are Subject to a Formal Analysis/Evaluation Process\n2.  Define the Criteria for Evaluating Alternative Solutions\n3.  Identify Alternative Solutions to Address Decision Issues\n4.  Select Evaluation Methods and Tools\n5.  Evaluate Alternative Solutions with the Established Criteria and Selected Methods\n6.  Select Recommended Solutions from the Alternatives Based on the Evaluation Criteria\n7.  Report Analysis Results with Recommendations, Impacts and Corrective Actions\n8.  Capture Work Products from Decision Analysis Activities\n\nThe three outgoing information products and their destination processes are:\n1.  \"Alternative Selection Recommendations and Impacts\" to \"All Technical Processes\"\n2.  \"Decision Support Recommendations and Impacts\" to \"To Technical Assessment Process\"\n3.  \"Work Products from Decision Analysis\" to \"To Technical Data Management Process\"",
+    "latency_s": 4.522,
+    "prompt_tokens": 3925,
+    "cached_tokens": 3887,
+    "new_input_tokens": 38,
+    "output_tokens": 241
+  },
+  "cache": {
+    "status": "created_and_used",
+    "name": "cachedContents/6yacwluhrgox3i9uvslriedqzm0xb0ljcuoacj6c",
+    "creation_s": 2.377,
+    "deleted_after_run": true
+  },
+  "fresh_input_avoided": 3887
+}

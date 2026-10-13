@@ -96,6 +96,53 @@ export interface GraphInfo {
   files: { path: string; size: number }[];
 }
 
+export interface PolicySession {
+  session_id: string;
+  source_name: string;
+  pages: number;
+  extracted_characters: number;
+  text_images: number;
+  table_images: number;
+  visual_images: number;
+  total_images: number;
+  preparation_s: number;
+  policy_tokens: number;
+  cache_context_tokens: number;
+  model: string;
+  ttl_seconds: number;
+  expires_at: number;
+  cache_renewals: number;
+  claims_processed: number;
+  questions_answered: number;
+}
+
+export interface CacheUsage {
+  prompt_tokens: number;
+  cached_tokens: number;
+  new_input_tokens: number;
+  output_tokens: number;
+  input_tokens_saved: number;
+}
+
+export interface PolicyReply {
+  answer: string;
+  usage: CacheUsage;
+  latency_s: number;
+  session: PolicySession;
+}
+
+export interface ClaimDecision {
+  classification: "Compliant" | "Non-compliant" | "Needs review";
+  explanation: string;
+  policy_references: string[];
+  reasoning_summary: string[];
+  evidence_gaps: string[];
+}
+
+export interface ClaimReply extends Omit<PolicyReply, "answer"> {
+  answer: ClaimDecision;
+}
+
 export const api = {
   createFromUrl: (repo_url: string) =>
     fetch(base, {
@@ -161,4 +208,28 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message, open_file }),
     }).then((r) => json<ChatReply>(r)),
+
+  createPolicy: (file: File) => {
+    const form = new FormData();
+    form.append("file", file);
+    return fetch("/api/prompt-caching/policies", { method: "POST", body: form }).then((r) =>
+      json<PolicySession>(r),
+    );
+  },
+  createDemoPolicy: () =>
+    fetch("/api/prompt-caching/policies/demo", { method: "POST" }).then((r) =>
+      json<PolicySession>(r),
+    ),
+  askPolicy: (id: string, question: string) =>
+    fetch(`/api/prompt-caching/policies/${id}/questions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question }),
+    }).then((r) => json<PolicyReply>(r)),
+  checkClaim: (id: string, claim: string) =>
+    fetch(`/api/prompt-caching/policies/${id}/claims`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ claim }),
+    }).then((r) => json<ClaimReply>(r)),
 };

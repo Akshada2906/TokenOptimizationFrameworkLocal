@@ -13,6 +13,10 @@ class ClaimRequest(BaseModel):
     claim: str = Field(min_length=1, max_length=20_000)
 
 
+class QuestionRequest(BaseModel):
+    question: str = Field(min_length=1, max_length=20_000)
+
+
 @router.post("/policies")
 async def create_policy(file: UploadFile = File(...)):
     name = file.filename or "expense_policy.pdf"
@@ -20,6 +24,22 @@ async def create_policy(file: UploadFile = File(...)):
         raise HTTPException(400, "Upload an expense-policy PDF file.")
     try:
         return cache_service.create_policy_cache(name, await file.read())
+    except cache_service.PromptCacheError as exc:
+        raise HTTPException(400, str(exc)) from exc
+
+
+@router.post("/policies/demo")
+def create_demo_policy():
+    try:
+        return cache_service.create_demo_policy_cache()
+    except cache_service.PromptCacheError as exc:
+        raise HTTPException(400, str(exc)) from exc
+
+
+@router.post("/policies/{session_id}/questions")
+def submit_question(session_id: str, body: QuestionRequest):
+    try:
+        return cache_service.ask_policy(session_id, body.question)
     except cache_service.PromptCacheError as exc:
         raise HTTPException(400, str(exc)) from exc
 

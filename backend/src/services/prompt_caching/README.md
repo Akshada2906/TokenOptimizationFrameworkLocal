@@ -49,3 +49,37 @@ uv run python -m src.services.prompt_caching.image_cache_benchmark --prepare-onl
 Generated PNGs and reports are written below `backend/artifacts/prompt_caching/` and ignored
 by Git. PixelPrompt receives extracted text, so this benchmark measures text rendered as images;
 it does not preserve diagrams or other graphics from an arbitrary source PDF.
+
+## Hybrid 100-page web POC
+
+The web POC at `http://localhost:5173/prompt-caching` uses the bundled synthetic document:
+
+```text
+data/Employee_Expense_Policy_POC_100p.pdf
+```
+
+Its preprocessing pipeline is implemented in `hybrid_policy.py`:
+
+1. PyMuPDF reads text blocks and native page geometry.
+2. pdfplumber extracts tables, which are converted to Markdown and rendered by PixelPrompt.
+3. Prose is rendered by PixelPrompt, while substantial non-table vector/raster regions are
+   cropped directly from the PDF.
+4. Every item is sorted by PDF page, vertical position, and item number before being cached.
+
+The same cache supports free-form policy questions and structured claim classification. The
+browser shows cached tokens, fresh input tokens, output tokens, and answer latency. When the
+remote Gemini cache reaches its TTL, the backend rebuilds it from the saved ordered images and
+retries the request; the PDF is not reparsed.
+
+Run the API and UI from separate terminals:
+
+```bat
+cd backend
+set "PYTHONPATH=%CD%"
+..\.venv\Scripts\python.exe -m uvicorn src.main:app --reload
+```
+
+```bat
+cd frontend
+npm run dev
+```

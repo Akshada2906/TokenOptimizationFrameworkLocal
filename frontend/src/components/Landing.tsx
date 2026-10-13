@@ -88,6 +88,9 @@ export default function Landing({ onReady }: { onReady: (id: string) => void }) 
           dependency graph, then rendered as PixelPrompt images the assistant reads instead of raw
           source.
         </p>
+        <a className="policy-poc-link" href="/prompt-caching">
+          Open the expense-policy prompt-caching POC →
+        </a>
 
         <form
           className="url-row"
