@@ -87,6 +87,9 @@ async def create_from_upload(request: Request, tasks: BackgroundTasks):
     session = create_session("upload")
     try:
         async with request.form(max_files=limit + 1, max_fields=limit + 1) as form:
+            source = form.get("source")
+            if isinstance(source, str) and source:
+                session.source = source
             uploads = [f for f in form.getlist("files") if isinstance(f, UploadFile)]
             if not uploads:
                 raise WorkspaceError("No files received.")

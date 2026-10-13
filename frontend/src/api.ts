@@ -107,13 +107,18 @@ export const api = {
   createFromFolder: (files: FileList) => {
     const form = new FormData();
     let sent = 0;
+    let folderName = "upload";
     Array.from(files).forEach((f) => {
       const rel = (f as any).webkitRelativePath || f.name;
+      if (sent === 0 && rel.includes("/")) {
+        folderName = rel.split("/")[0];
+      }
       if (wantFile(rel, f.size)) {
         form.append("files", f, rel);
         sent++;
       }
     });
+    form.append("source", folderName);
     if (sent === 0) return Promise.reject(new Error("No source code files found in that folder."));
     return fetch(`${base}/upload`, { method: "POST", body: form }).then((r) =>
       json<{ session_id: string }>(r),
