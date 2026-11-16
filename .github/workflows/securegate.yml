@@ -42,25 +42,30 @@ jobs:
 
       - name: Validate SecureGate AI URL
         run: |
-          if [ -z "$SECUREGATE_URL" ]; then
+          CLEAN_URL=$(printf '%s' "$SECUREGATE_URL" | tr -d '\r\n[:space:]')
+          CLEAN_KEY=$(printf '%s' "$SECUREGATE_API_KEY" | tr -d '\r\n[:space:]')
+          if [ -z "$CLEAN_URL" ]; then
             echo "SECUREGATE_URL GitHub secret is missing."
             exit 1
           fi
 
-          if echo "$SECUREGATE_URL" | grep -Eq '\[|\]|\(|\)| '; then
+          if echo "$CLEAN_URL" | grep -Eq '\[|\]|\(|\)'; then
             echo "SECUREGATE_URL is malformed."
             echo "Save it as a plain URL only, for example: https://citric-pliable-baggie.ngrok-free.dev"
             echo "Do not use Markdown format like [https://...](https://...)."
             exit 1
           fi
 
-          case "$SECUREGATE_URL" in
+          case "$CLEAN_URL" in
             http://*|https://*) ;;
             *)
               echo "SECUREGATE_URL must start with http:// or https://"
               exit 1
               ;;
           esac
+
+          echo "SECUREGATE_URL=$CLEAN_URL" >> "$GITHUB_ENV"
+          echo "SECUREGATE_API_KEY=$CLEAN_KEY" >> "$GITHUB_ENV"
 
       - name: Start SecureGate AI scan
         id: securegate_start
@@ -83,6 +88,7 @@ jobs:
 
           HTTP_STATUS=$(curl -sS -o securegate-start-response.json -w "%{http_code}" -X POST "${SECUREGATE_URL%/}/api/v1/pipeline/start" \
             -H "Authorization: Bearer $SECUREGATE_API_KEY" \
+            -H "ngrok-skip-browser-warning: 1" \
             -H "Content-Type: application/json" \
             --data "$START_PAYLOAD")
 
